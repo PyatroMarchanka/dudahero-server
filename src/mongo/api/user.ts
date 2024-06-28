@@ -14,6 +14,12 @@ const getUserByEmail = async (email: string) => {
   return (await UserModel.findOne({ email })) as User;
 };
 
+const getUserById = async (id: string) => {
+  await setupMongooseConnection();
+
+  return (await UserModel.findById(id)) as User;
+};
+
 const addUser = async (user: User) => {
   await setupMongooseConnection();
 
@@ -22,4 +28,4 @@ const addUser = async (user: User) => {
   return userFromDb as User;
 };
 
-export const userApi = { getAllUsers, getUserByEmail, addUser };
+export const userApi = { getAllUsers, getUserByEmail, addUser, getUserById };

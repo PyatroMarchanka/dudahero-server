@@ -1,34 +1,34 @@
-import express, { Router, Request, Response, NextFunction } from 'express';
-import passport from 'passport'
+import express, { Router, Request, Response, NextFunction } from "express";
+import passport from "passport";
 import jwt from "jsonwebtoken";
+import { ENV } from "../../config";
+import { ObjectId } from "mongoose";
 
 export const authRouter: Router = express.Router();
 
 authRouter.get(
-  '/google', 
-  passport.authenticate('google', { scope: ['profile', 'email'] })
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
 authRouter.get(
-  '/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/login' }), 
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
   (req: Request, res: Response) => {
-    const token = jwt.sign(
-      { user: req.user },
-      process.env.JWT_SECRET || '',
-      { expiresIn: "1h" },
-    );
-    res.cookie('jwtToken', token);
-    res.redirect("http://localhost:3000")
+    const token = jwt.sign({ user: req.user }, ENV.JWT_SECRET || "", {
+      expiresIn: "1h",
+    });
+    console.log("req.user", req.user);
+
+    res.cookie("jwtToken", token);
+    res.cookie("userId", ((req as any).user._id as ObjectId).toString());
+    res.redirect(ENV.FRONTEND_URL);
   }
 );
 
-authRouter.get(
-  '/logout', 
-  (req: Request, res: Response, next: NextFunction) => {
-    req.logout(function (err) {
-      if (err) return next(err);
-      res.redirect('/');
-    });
-  }
-);
+authRouter.get("/logout", (req: Request, res: Response, next: NextFunction) => {
+  req.logout(function (err) {
+    if (err) return next(err);
+    res.redirect("/");
+  });
+});
