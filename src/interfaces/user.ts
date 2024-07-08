@@ -4,6 +4,7 @@ import { BagpipeTypes } from "./song";
 export interface User {
     name: string;
     email: string;
+    picture?: string;
     settings?: UserSettings;
 }
 
@@ -12,4 +13,5 @@ export interface UserSettings {
     tempo: number;
     userPreclick: boolean;
     language: Languages;
+    transpose: number;
 }

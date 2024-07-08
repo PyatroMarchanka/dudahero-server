@@ -7,12 +7,13 @@ import { jwtAuth } from "./src/middleware/ jwtAuth";
 import { ENV } from "./config";
 import { userApi } from "./src/mongo/api/user";
 import cors from "cors";
+import bodyParser from "body-parser";
 
 const app = express();
 const port = 8080;
 
 useGoogleStrategy();
-
+const jsonParser = bodyParser.json();
 app.use(
   session({
     secret: ENV.SESSION_SECRET || "keyboard cat",
@@ -25,7 +26,7 @@ app.use(cors({ origin: "http://localhost:3000" }));
 
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use(express.json());
 app.use("/v1/auth", authRouter);
 
 app.get("/v1/profile", async (req, res) => {
@@ -36,6 +37,20 @@ app.get("/v1/profile", async (req, res) => {
     res.send(user);
   } catch (error) {
     console.log(error);
+    res.status(403);
+    res.send(error);
+  }
+});
+
+app.post("/v1/settings-update", jsonParser, async (req, res) => {
+  try {
+    jwtAuth(req);
+    const userId = req.header("userId");
+    const user = await userApi.updateUserSettinsById(userId!, req.body);
+    res.send(user);
+  } catch (error) {
+    console.log(error);
+    res.status(403);
     res.send(error);
   }
 });

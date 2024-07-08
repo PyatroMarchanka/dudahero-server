@@ -1,4 +1,5 @@
-import { User } from "../../interfaces/user";
+import mongoose from "mongoose";
+import { User, UserSettings } from "../../interfaces/user";
 import setupMongooseConnection from "../connect";
 import { UserModel } from "../schemas/user";
 
@@ -22,10 +23,26 @@ const getUserById = async (id: string) => {
 
 const addUser = async (user: User) => {
   await setupMongooseConnection();
-
   await UserModel.create(user);
   const userFromDb = await UserModel.findOne({ email: user.email });
   return userFromDb as User;
 };
 
-export const userApi = { getAllUsers, getUserByEmail, addUser, getUserById };
+const updateUserSettinsById = async (id: string, data: UserSettings) => {
+  await setupMongooseConnection();
+
+  const user = await UserModel.findOneAndUpdate(
+    { _id: new mongoose.Types.ObjectId(id) },
+    { settings: { ...data } }
+  );
+
+  return;
+};
+
+export const userApi = {
+  getAllUsers,
+  getUserByEmail,
+  addUser,
+  getUserById,
+  updateUserSettinsById,
+};

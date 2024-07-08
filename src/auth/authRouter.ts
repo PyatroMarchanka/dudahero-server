@@ -15,10 +15,7 @@ authRouter.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req: Request, res: Response) => {
-    const token = jwt.sign({ user: req.user }, ENV.JWT_SECRET || "", {
-      expiresIn: "1h",
-    });
-    console.log("req.user", req.user);
+    const token = jwt.sign({ user: req.user }, ENV.JWT_SECRET || "");
 
     res.cookie("jwtToken", token);
     res.cookie("userId", ((req as any).user._id as ObjectId).toString());
@@ -29,6 +26,8 @@ authRouter.get(
 authRouter.get("/logout", (req: Request, res: Response, next: NextFunction) => {
   req.logout(function (err) {
     if (err) return next(err);
-    res.redirect("/");
+    res.clearCookie('jwtToken')
+    res.clearCookie('userId')
+    res.redirect(ENV.FRONTEND_URL);
   });
 });

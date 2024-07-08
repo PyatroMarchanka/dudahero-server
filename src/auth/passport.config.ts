@@ -22,17 +22,18 @@ export function useGoogleStrategy() {
           let user = await userApi.getUserByEmail(profile._json.email);
 
           if (user) {
-
             done(null, user);
           } else {
             const newUser: User = {
               name: profile._json.name!,
               email: profile._json.email!,
+              picture: profile._json.picture,
               settings: {
-                tempo: 120,
+                tempo: 240,
                 userPreclick: true,
                 bagpipe: BagpipeTypes.BelarusianTraditionalDuda,
                 language: Languages.English,
+                transpose: 0
               },
             };
             user = await userApi.addUser(newUser);
