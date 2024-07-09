@@ -6,38 +6,12 @@ on:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Update .env file
-      run: |
-        echo "MONGO_DB_URL=${{ secrets.MONGO_DB_URL }}" >> .env
-        echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
-        echo "MONGO_DB_USER=${{ secrets.MONGO_DB_USER }}" >> .env
-        echo "MONGO_DB_PASS=${{ secrets.MONGO_DB_PASS }}" >> .env
-        echo "MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }}" >> .env
-        echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
-        echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
-        echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
-        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-        echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
-
-    - name: Build Docker image
-      run: docker-compose build
-
-    - name: Deploy to server
+    - name: Deploy to server via SSH
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.SERVER_HOST }}
@@ -46,6 +20,7 @@ jobs:
         port: ${{ secrets.SERVER_PORT }}
         script: |
           cd /dudahero/dudahero-server
+          rm -vrf .env
           git pull origin main
           echo "MONGO_DB_URL=${{ secrets.MONGO_DB_URL }}" > .env
           echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
@@ -57,5 +32,4 @@ jobs:
           echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
-          docker-compose down
-          docker-compose up -d
+          docker-compose down;docker-compose up -d --build
