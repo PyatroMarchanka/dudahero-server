@@ -1,0 +1,41 @@
+name: Deploy Application
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Update .env file
+      run: |
+        echo "MONGO_DB_URL=${{ secrets.MONGO_DB_URL }}" >> .env
+        echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
+        echo "MONGO_DB_USER=${{ secrets.MONGO_DB_USER }}" >> .env
+        echo "MONGO_DB_PASS=${{ secrets.MONGO_DB_PASS }}" >> .env
+        echo "MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }}" >> .env
+        echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+        echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+        echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
+        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+        echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
+
+    - name: Build and push Docker images
+      run: docker-compose build
+
+    - name: Deploy application
+      run: docker-compose up -d
