@@ -10,7 +10,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 
 const app = express();
-const port = 8080;
+const port = process.env.BACKEND_PORT;
 
 useGoogleStrategy();
 const jsonParser = bodyParser.json();
