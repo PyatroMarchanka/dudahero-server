@@ -22,7 +22,7 @@ authRouter.get(
       httpOnly: false,
       secure: false,
       path: "/",
-      sameSite: ENV.NODE_ENV === "development" ? true : "lax",
+      sameSite: "lax",
     });
 
     res.cookie("userId", ((req as any).user._id as ObjectId).toString(), {
@@ -30,7 +30,7 @@ authRouter.get(
       httpOnly: false,
       secure: false,
       path: "/",
-      sameSite: ENV.NODE_ENV === "development" ? true : "lax",
+      sameSite: "lax",
     });
 
     res.redirect(ENV.FRONTEND_URL);
