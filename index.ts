@@ -6,7 +6,7 @@ import { useGoogleStrategy } from "./src/auth/passport.config";
 import { jwtAuth } from "./src/middleware/ jwtAuth";
 import { ENV } from "./config";
 import { userApi } from "./src/mongo/api/user";
-import cors from "cors";
+import cors, { CorsOptions } from "cors";
 import bodyParser from "body-parser";
 
 const app = express();
@@ -22,7 +22,12 @@ app.use(
   })
 );
 
-app.use(cors({ origin: ENV.FRONTEND_URL, credentials: true }));
+app.use(
+  cors({
+    origin: [ENV.FRONTEND_URL, "http://localhost:3000"],
+    credentials: true,
+  } as CorsOptions)
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
