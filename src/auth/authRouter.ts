@@ -17,8 +17,18 @@ authRouter.get(
   (req: Request, res: Response) => {
     const token = jwt.sign({ user: req.user }, ENV.JWT_SECRET || "");
 
-    res.cookie("jwtToken", token);
-    res.cookie("userId", ((req as any).user._id as ObjectId).toString());
+    res.cookie("jwtToken", token, {
+      maxAge: 1000 * 60 * 60 * 128,
+      httpOnly: true,
+      sameSite: ENV.NODE_ENV === "development" ? true : "none",
+      secure: ENV.NODE_ENV === "development" ? false : true,
+    });
+    res.cookie("userId", ((req as any).user._id as ObjectId).toString(), {
+      maxAge: 1000 * 60 * 60 * 128,
+      httpOnly: true,
+      sameSite: ENV.NODE_ENV === "development" ? true : "none",
+      secure: ENV.NODE_ENV === "development" ? false : true,
+    });
     res.redirect(ENV.FRONTEND_URL);
   }
 );
@@ -26,8 +36,8 @@ authRouter.get(
 authRouter.get("/logout", (req: Request, res: Response, next: NextFunction) => {
   req.logout(function (err) {
     if (err) return next(err);
-    res.clearCookie('jwtToken')
-    res.clearCookie('userId')
+    res.clearCookie("jwtToken");
+    res.clearCookie("userId");
     res.redirect(ENV.FRONTEND_URL);
   });
 });

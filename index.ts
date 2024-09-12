@@ -22,7 +22,7 @@ app.use(
   })
 );
 
-app.use(cors({ origin: "http://localhost:3000" }));
+app.use(cors({ origin: ENV.FRONTEND_URL, credentials: true }));
 
 app.use(passport.initialize());
 app.use(passport.session());
