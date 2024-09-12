@@ -29,11 +29,6 @@ app.use(
   } as CorsOptions)
 );
 
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  next();
-});
-
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());

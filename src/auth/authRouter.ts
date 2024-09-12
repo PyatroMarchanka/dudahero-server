@@ -21,7 +21,6 @@ authRouter.get(
       maxAge: 1000 * 60 * 60 * 128,
       httpOnly: false,
       sameSite: ENV.NODE_ENV === "development" ? true : "none",
-      secure: false,
       domain: ENV.NODE_ENV === "development" ? undefined : ENV.FRONTEND_URL,
     });
 
@@ -29,9 +28,9 @@ authRouter.get(
       maxAge: 1000 * 60 * 60 * 128,
       httpOnly: false,
       sameSite: ENV.NODE_ENV === "development" ? true : "none",
-      secure: false,
       domain: ENV.NODE_ENV === "development" ? undefined : ENV.FRONTEND_URL,
     });
+
     res.redirect(ENV.FRONTEND_URL);
   }
 );
