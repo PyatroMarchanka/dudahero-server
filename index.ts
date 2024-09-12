@@ -21,7 +21,7 @@ app.use(
     saveUninitialized: true,
   })
 );
-
+app.set('trust proxy', 1)
 app.use(
   cors({
     origin: [ENV.FRONTEND_URL, "http://localhost:3000"],
