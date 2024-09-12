@@ -20,7 +20,7 @@ authRouter.get(
     res.cookie("jwtToken", token, {
       maxAge: 1000 * 60 * 60 * 128,
       httpOnly: false,
-      secure: false,
+      secure: true,
       path: "/",
       sameSite: "lax",
     });
@@ -28,9 +28,9 @@ authRouter.get(
     res.cookie("userId", ((req as any).user._id as ObjectId).toString(), {
       maxAge: 1000 * 60 * 60 * 128,
       httpOnly: false,
-      secure: false,
+      secure: true,
       path: "/",
-      sameSite: "lax",
+      sameSite: "none",
     });
 
     res.redirect(ENV.FRONTEND_URL);

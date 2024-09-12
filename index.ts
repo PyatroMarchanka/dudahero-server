@@ -24,9 +24,13 @@ app.use(
 app.set('trust proxy', 1)
 app.use(
   cors({
-    origin: ENV.FRONTEND_URL,
+    origin: 'https://dudahero.org',
     credentials: true,
   } as CorsOptions)
+);
+
+app.use(
+  cors()
 );
 
 app.use(passport.initialize());
