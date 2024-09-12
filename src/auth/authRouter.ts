@@ -19,13 +19,14 @@ authRouter.get(
 
     res.cookie("jwtToken", token, {
       maxAge: 1000 * 60 * 60 * 128,
-      httpOnly: true,
+      httpOnly: false,
       sameSite: ENV.NODE_ENV === "development" ? true : "none",
       secure: ENV.NODE_ENV === "development" ? false : true,
     });
+
     res.cookie("userId", ((req as any).user._id as ObjectId).toString(), {
       maxAge: 1000 * 60 * 60 * 128,
-      httpOnly: true,
+      httpOnly: false,
       sameSite: ENV.NODE_ENV === "development" ? true : "none",
       secure: ENV.NODE_ENV === "development" ? false : true,
     });
