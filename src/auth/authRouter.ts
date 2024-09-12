@@ -19,9 +19,10 @@ authRouter.get(
 
     res.cookie("jwtToken", token, {
       maxAge: 1000 * 60 * 60 * 128,
-      httpOnly: true,
+      httpOnly: false,
       sameSite: ENV.NODE_ENV === "development" ? true : "none",
       secure: ENV.NODE_ENV === "development" ? false : true,
+      domain: ENV.NODE_ENV === "development" ? undefined : ENV.FRONTEND_URL,
     });
 
     res.cookie("userId", ((req as any).user._id as ObjectId).toString(), {
@@ -29,6 +30,7 @@ authRouter.get(
       httpOnly: false,
       sameSite: ENV.NODE_ENV === "development" ? true : "none",
       secure: ENV.NODE_ENV === "development" ? false : true,
+      domain: ENV.NODE_ENV === "development" ? undefined : ENV.FRONTEND_URL,
     });
     res.redirect(ENV.FRONTEND_URL);
   }
