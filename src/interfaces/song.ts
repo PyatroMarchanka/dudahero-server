@@ -29,6 +29,9 @@ export enum SongTypes {
     pathName: string;
     labels: string[]
     id: string;
+    about: string;
+    trinscribedBy: string;
+    originalTempo: number;
   }
 
 

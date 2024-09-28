@@ -21,17 +21,16 @@ app.use(
     saveUninitialized: true,
   })
 );
-app.set('trust proxy', 1)
-app.use(
-  cors({
-    origin: 'https://dudahero.org',
-    credentials: true,
-  } as CorsOptions)
-);
 
 app.use(
-  cors()
+  cors({
+    origin: "https://dudahero.org",
+    credentials: true,
+    sameSite: "none",
+    exposedHeaders: ["Set-Cookie"],
+  } as CorsOptions)
 );
+app.set("trust proxy", 1);
 
 app.use(passport.initialize());
 app.use(passport.session());
