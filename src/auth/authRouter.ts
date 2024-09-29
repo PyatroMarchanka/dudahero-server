@@ -16,7 +16,7 @@ authRouter.get(
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req: Request, res: Response) => {
     const token = jwt.sign({ user: req.user }, ENV.JWT_SECRET || "");
-
+    console.log("user id", (req as any).user._id);
     res.cookie("jwtToken", token, {
       maxAge: 1000 * 60 * 60 * 128,
       httpOnly: false,
@@ -32,7 +32,7 @@ authRouter.get(
       path: "/",
       sameSite: "none",
     });
-
+    console.log(ENV.FRONTEND_URL)
     res.redirect(ENV.FRONTEND_URL);
   }
 );
