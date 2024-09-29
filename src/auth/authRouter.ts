@@ -22,7 +22,7 @@ authRouter.get(
       httpOnly: false,
       secure: true,
       path: "/",
-      sameSite: "lax",
+      sameSite: "none",
     });
 
     res.cookie("userId", ((req as any).user._id as ObjectId).toString(), {
