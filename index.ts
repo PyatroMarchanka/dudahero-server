@@ -10,7 +10,7 @@ import bodyParser from "body-parser";
 import { jwtAuth } from "./src/middleware/jwtAuth";
 
 const app = express();
-const port = process.env.BACKEND_PORT || 3000; // Default to 3000 if not set
+const port = parseInt(process.env.BACKEND_PORT || "3000", 10); // Default to 3000 if not set
 const host = process.env.BACKEND_HOST || "127.0.0.1"; // Default to 127.0.0.1 if not set
 
 useGoogleStrategy();
