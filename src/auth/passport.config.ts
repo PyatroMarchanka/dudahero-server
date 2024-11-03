@@ -18,6 +18,7 @@ export function useGoogleStrategy() {
         callbackURL: "/v1/auth/google/callback",
       },
       async (accessToken, refreshToken, profile, done) => {
+        console.log("TEST LOG");
         try {
           // Check for user's email in profile
           if (!profile._json.email) {
