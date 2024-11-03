@@ -8,10 +8,28 @@ import { userApi } from "./src/mongo/api/user";
 import cors, { CorsOptions } from "cors";
 import bodyParser from "body-parser";
 import { jwtAuth } from "./src/middleware/jwtAuth";
+import morgan from "morgan";
+import winston from "winston";
 
 const app = express();
-const port = parseInt(process.env.BACKEND_PORT || "3000", 10); // Default to 3000 if not set
-const host = process.env.BACKEND_HOST || "127.0.0.1"; // Default to 127.0.0.1 if not set
+const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
+const host = process.env.BACKEND_HOST || "127.0.0.1";
+
+// Set up logging
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'app.log' })
+  ]
+});
+
+// Log HTTP requests
+app.use(morgan('combined', { stream: { write: (message) => logger.info(message.trim()) }}));
 
 useGoogleStrategy();
 const jsonParser = bodyParser.json();
@@ -42,7 +60,7 @@ app.get("/v1/profile", async (req, res) => {
     const user = await userApi.getUserById(userId!);
     res.send(user);
   } catch (error) {
-    console.log(error);
+    logger.error("Error fetching profile:", error);
     res.status(403).send(error);
   }
 });
@@ -54,11 +72,11 @@ app.post("/v1/settings-update", jsonParser, async (req, res) => {
     const user = await userApi.updateUserSettinsById(userId!, req.body);
     res.send(user);
   } catch (error) {
-    console.log(error);
+    logger.error("Error updating settings:", error);
     res.status(403).send(error);
   }
 });
 
 app.listen(port, host, () => {
-  console.log(`Example app listening on http://${host}:${port}`);
+  logger.info(`Server listening on http://${host}:${port}`);
 });

@@ -9,6 +9,8 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
+RUN npm install morgan winston
+
 # If you are building your code for production
 # RUN npm ci --only=production
 
