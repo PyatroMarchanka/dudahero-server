@@ -11,7 +11,7 @@ authRouter.use((req: Request, res: Response, next: NextFunction) => {
     method: req.method,
     path: req.path,
     query: req.query,
-    body: req.body
+    body: req.body,
   });
   next();
 });
@@ -35,6 +35,14 @@ authRouter.get(
     }
 
     try {
+      res.header("Access-Control-Allow-Origin", ENV.FRONTEND_URL);
+      res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept"
+      );
+      res.header("Access-Control-Allow-Credentials", "true");
+      console.log("Access-Control headers are set");
+      
       console.log("Google callback received", { user: req.user });
 
       // Create JWT token and log it
