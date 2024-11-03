@@ -5,6 +5,7 @@ import { User } from "../interfaces/user";
 import { ENV } from "../../config";
 import { BagpipeTypes } from "../interfaces/song";
 import { Languages } from "../interfaces/common";
+import { logger } from "../../logger"; // Import your logger
 
 const GoogleStrategy = passportGoogle.Strategy;
 
@@ -18,12 +19,22 @@ export function useGoogleStrategy() {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          if (!profile._json.email) throw "User does not have email";
+          // Check for user's email in profile
+          if (!profile._json.email) {
+            logger.error("Google profile does not contain an email.");
+            throw new Error("User does not have email");
+          }
+
+          // Log profile data for debugging
+          logger.info("Received Google profile", { email: profile._json.email, name: profile._json.name });
+
           let user = await userApi.getUserByEmail(profile._json.email);
 
           if (user) {
+            logger.info("User found, logging in", { userId: user._id, email: user.email });
             done(null, user);
           } else {
+            // Create a new user if none exists
             const newUser: User = {
               name: profile._json.name!,
               email: profile._json.email!,
@@ -33,25 +44,30 @@ export function useGoogleStrategy() {
                 userPreclick: true,
                 bagpipe: BagpipeTypes.BelarusianTraditionalDuda,
                 language: Languages.English,
-                transpose: 0
+                transpose: 0,
               },
             };
             user = await userApi.addUser(newUser);
+            logger.info("New user created", { userId: user._id, email: user.email });
             done(null, user);
           }
         } catch (err: any) {
-          console.error(err);
+          logger.error("Error in Google strategy", { error: err });
           done(err);
         }
       }
     )
   );
 
+  // Serialize user to session
   passport.serializeUser(function (user: Express.User, done) {
+    logger.info("Serializing user", { user });
     done(null, user);
   });
 
+  // Deserialize user from session
   passport.deserializeUser(function (user: Express.User, done) {
+    logger.info("Deserializing user", { user });
     done(null, user);
   });
 }
