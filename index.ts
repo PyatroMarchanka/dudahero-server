@@ -29,7 +29,7 @@ const logger = winston.createLogger({
 });
 
 // Log HTTP requests
-app.use(morgan('combined', { stream: { write: (message) => logger.info(message.trim()) }}));
+app.use(morgan('combined', { stream: { write: (message) => console.log(message.trim()) }}));
 
 useGoogleStrategy();
 const jsonParser = bodyParser.json();
@@ -78,5 +78,5 @@ app.post("/v1/settings-update", jsonParser, async (req, res) => {
 });
 
 app.listen(port, host, () => {
-  logger.info(`Server listening on http://${host}:${port}`);
+  console.log(`Server listening on http://${host}:${port}`);
 });

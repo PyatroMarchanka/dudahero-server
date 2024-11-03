@@ -10,7 +10,7 @@ export const authRouter: Router = express.Router();
 authRouter.get(
   "/google",
   (req: Request, res: Response, next: NextFunction) => {
-    logger.info("Initiating Google authentication");
+    console.log("Initiating Google authentication");
     next();
   },
   passport.authenticate("google", { scope: ["profile", "email"] })
@@ -26,15 +26,15 @@ authRouter.get(
     }
 
     try {
-      logger.info("Google callback received", { user: req.user });
+      console.log("Google callback received", { user: req.user });
 
       // Create JWT token and log it
       const token = jwt.sign({ user: req.user }, ENV.JWT_SECRET || "");
-      logger.info("JWT token created", { token });  // Log the token for testing
+      console.log("JWT token created", { token });  // Log the token for testing
 
       // Extract and log user ID
       const userId = (req.user as any)._id.toString();
-      logger.info("User ID extracted", { userId });
+      console.log("User ID extracted", { userId });
 
       // Set cookies with the token and user ID
       res.cookie("jwtToken", token, {
@@ -53,7 +53,7 @@ authRouter.get(
         sameSite: "none",
       });
 
-      logger.info("Cookies set successfully", { jwtToken: token, userId });
+      console.log("Cookies set successfully", { jwtToken: token, userId });
       res.redirect(ENV.FRONTEND_URL);
     } catch (error) {
       logger.error("Error during cookie setting or redirection", { error });
@@ -68,7 +68,7 @@ authRouter.get("/logout", (req: Request, res: Response, next: NextFunction) => {
       logger.error("Logout error", { error: err });
       return next(err);
     }
-    logger.info("User logged out", { userId: (req as any).user?._id });
+    console.log("User logged out", { userId: (req as any).user?._id });
 
     res.clearCookie("jwtToken");
     res.clearCookie("userId");

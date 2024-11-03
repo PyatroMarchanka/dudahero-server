@@ -26,12 +26,12 @@ export function useGoogleStrategy() {
           }
 
           // Log profile data for debugging
-          logger.info("Received Google profile", { email: profile._json.email, name: profile._json.name });
+          console.log("Received Google profile", { email: profile._json.email, name: profile._json.name });
 
           let user = await userApi.getUserByEmail(profile._json.email);
 
           if (user) {
-            logger.info("User found, logging in", { userId: user._id, email: user.email });
+            console.log("User found, logging in", { userId: user._id, email: user.email });
             done(null, user);
           } else {
             // Create a new user if none exists
@@ -48,7 +48,7 @@ export function useGoogleStrategy() {
               },
             };
             user = await userApi.addUser(newUser);
-            logger.info("New user created", { userId: user._id, email: user.email });
+            console.log("New user created", { userId: user._id, email: user.email });
             done(null, user);
           }
         } catch (err: any) {
@@ -61,13 +61,13 @@ export function useGoogleStrategy() {
 
   // Serialize user to session
   passport.serializeUser(function (user: Express.User, done) {
-    logger.info("Serializing user", { user });
+    console.log("Serializing user", { user });
     done(null, user);
   });
 
   // Deserialize user from session
   passport.deserializeUser(function (user: Express.User, done) {
-    logger.info("Deserializing user", { user });
+    console.log("Deserializing user", { user });
     done(null, user);
   });
 }
