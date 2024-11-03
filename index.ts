@@ -53,6 +53,17 @@ app.use(passport.session());
 app.use(express.json());
 app.use("/v1/auth", authRouter);
 
+app.use("*", function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", ENV.FRONTEND_URL);
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  res.header("Access-Control-Allow-Credentials", "true");
+  console.log('Access-Control headers are set')
+  next();
+});
+
 app.get("/v1/profile", async (req, res) => {
   try {
     jwtAuth(req);
