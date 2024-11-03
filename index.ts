@@ -29,7 +29,7 @@ const logger = winston.createLogger({
 });
 
 // Log HTTP requests
-app.use(morgan('combined', { stream: { write: (message) => console.log(message.trim()) }}));
+app.use(morgan('combined', { stream: { write: (message: any) => console.log(message.trim()) }}));
 
 useGoogleStrategy();
 const jsonParser = bodyParser.json();
