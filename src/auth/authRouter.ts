@@ -28,9 +28,15 @@ authRouter.get(
     try {
       logger.info("Google callback received", { user: req.user });
 
+      // Create JWT token and log it
       const token = jwt.sign({ user: req.user }, ENV.JWT_SECRET || "");
-      logger.info("JWT token created", { token });
+      logger.info("JWT token created", { token });  // Log the token for testing
 
+      // Extract and log user ID
+      const userId = (req.user as any)._id.toString();
+      logger.info("User ID extracted", { userId });
+
+      // Set cookies with the token and user ID
       res.cookie("jwtToken", token, {
         maxAge: 1000 * 60 * 60 * 128,
         httpOnly: false,
@@ -39,7 +45,7 @@ authRouter.get(
         sameSite: "none",
       });
 
-      res.cookie("userId", ((req as any).user._id as ObjectId).toString(), {
+      res.cookie("userId", userId, {
         maxAge: 1000 * 60 * 60 * 128,
         httpOnly: false,
         secure: true,
@@ -47,7 +53,7 @@ authRouter.get(
         sameSite: "none",
       });
 
-      logger.info("Cookies set successfully", { userId: req.user?._id });
+      logger.info("Cookies set successfully", { jwtToken: token, userId });
       res.redirect(ENV.FRONTEND_URL);
     } catch (error) {
       logger.error("Error during cookie setting or redirection", { error });
