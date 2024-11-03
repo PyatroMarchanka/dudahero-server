@@ -4,7 +4,7 @@ services:
   dudahero_server:
     build: .
     ports:
-      - $BACKEND_PORT:$BACKEND_PORT
+      - 127.0.0.1:$BACKEND_PORT:$BACKEND_PORT
     env_file:
       - .env
     command: npm start
