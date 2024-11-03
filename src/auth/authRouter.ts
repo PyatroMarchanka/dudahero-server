@@ -7,6 +7,17 @@ import { logger } from "../../logger";  // Import the logger from your setup
 
 export const authRouter: Router = express.Router();
 
+// Middleware to log all requests to authRouter
+authRouter.use((req: Request, res: Response, next: NextFunction) => {
+  console.log("Incoming request", {
+    method: req.method,
+    path: req.path,
+    query: req.query,
+    body: req.body
+  });
+  next();
+});
+
 authRouter.get(
   "/google",
   (req: Request, res: Response, next: NextFunction) => {
@@ -30,7 +41,7 @@ authRouter.get(
 
       // Create JWT token and log it
       const token = jwt.sign({ user: req.user }, ENV.JWT_SECRET || "");
-      console.log("JWT token created", { token });  // Log the token for testing
+      console.log("JWT token created", { token });
 
       // Extract and log user ID
       const userId = (req.user as any)._id.toString();
