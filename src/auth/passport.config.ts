@@ -5,7 +5,6 @@ import { User } from "../interfaces/user";
 import { ENV } from "../../config";
 import { BagpipeTypes } from "../interfaces/song";
 import { Languages } from "../interfaces/common";
-import { logger } from "../../logger"; // Import your logger
 
 const GoogleStrategy = passportGoogle.Strategy;
 
@@ -32,7 +31,7 @@ export function useGoogleStrategy() {
           let user = await userApi.getUserByEmail(profile._json.email);
 
           if (user) {
-            console.log("User found, logging in", { userId: user._id, email: user.email });
+            console.log("User found, logging in", { userId: (user as any)._id, email: user.email });
             done(null, user);
           } else {
             // Create a new user if none exists
@@ -49,7 +48,7 @@ export function useGoogleStrategy() {
               },
             };
             user = await userApi.addUser(newUser);
-            console.log("New user created", { userId: user._id, email: user.email });
+            console.log("New user created", { userId: (user as any)._id, email: user.email });
             done(null, user);
           }
         } catch (err: any) {
