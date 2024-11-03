@@ -3,14 +3,15 @@ import session from "express-session";
 import passport from "passport";
 import { authRouter } from "./src/auth/authRouter";
 import { useGoogleStrategy } from "./src/auth/passport.config";
-import { jwtAuth } from "./src/middleware/ jwtAuth";
+import { jwtAuth } from "./src/middleware/jwtAuth";
 import { ENV } from "./config";
 import { userApi } from "./src/mongo/api/user";
 import cors, { CorsOptions } from "cors";
 import bodyParser from "body-parser";
 
 const app = express();
-const port = process.env.BACKEND_PORT;
+const port = process.env.BACKEND_PORT || 3000;  // Default to 3000 if not set
+const host = process.env.BACKEND_HOST || '127.0.0.1';  // Default to 127.0.0.1 if not set
 
 useGoogleStrategy();
 const jsonParser = bodyParser.json();
@@ -29,16 +30,6 @@ app.use(
   } as CorsOptions)
 );
 
-// app.use("*", function (req, res, next) {
-//   res.header("Access-Control-Allow-Origin", ENV.FRONTEND_URL);
-//   res.header(
-//     "Access-Control-Allow-Headers",
-//     "Origin, X-Requested-With, Content-Type, Accept"
-//   );
-//   res.header("Access-Control-Allow-Credentials", "true");
-//   next();
-// });
-
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
@@ -52,8 +43,7 @@ app.get("/v1/profile", async (req, res) => {
     res.send(user);
   } catch (error) {
     console.log(error);
-    res.status(403);
-    res.send(error);
+    res.status(403).send(error);
   }
 });
 
@@ -65,11 +55,10 @@ app.post("/v1/settings-update", jsonParser, async (req, res) => {
     res.send(user);
   } catch (error) {
     console.log(error);
-    res.status(403);
-    res.send(error);
+    res.status(403).send(error);
   }
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+app.listen(port, host, () => {
+  console.log(`Example app listening on http://${host}:${port}`);
 });
