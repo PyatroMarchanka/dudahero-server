@@ -2,6 +2,7 @@ import express, { Router, Request, Response, NextFunction } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 import { ENV } from "../../config";
+import cookie from "cookie";
 
 export const authRouter: Router = express.Router();
 
@@ -40,9 +41,11 @@ authRouter.get(
         "Access-Control-Allow-Headers",
         "Origin, X-Requested-With, Content-Type, Accept"
       );
+      res.header("Access-Control-Expose-Headers", "Set-cookie");
       res.header("Access-Control-Allow-Credentials", "true");
+      res.header("Set-cookie", "true");
       console.log("Access-Control headers are set");
-      
+
       console.log("Google callback received", { user: req.user });
 
       // Create JWT token and log it
@@ -52,6 +55,9 @@ authRouter.get(
       // Extract and log user ID
       const userId = (req.user as any)._id.toString();
       console.log("User ID extracted", { userId });
+
+      res.setHeader("Set-Cookie", cookie.serialize("userId", userId));
+      res.setHeader("Set-Cookie", cookie.serialize("jwtToken", token));
 
       // Set cookies with the token and user ID
       res.cookie("jwtToken", token, {
