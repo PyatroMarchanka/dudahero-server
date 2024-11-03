@@ -20,9 +20,14 @@ authRouter.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req: Request, res: Response) => {
+    if (!req.user) {
+      logger.error("Authentication failed: req.user is undefined");
+      return res.status(500).send("Authentication error");
+    }
+
     try {
       logger.info("Google callback received", { user: req.user });
-      
+
       const token = jwt.sign({ user: req.user }, ENV.JWT_SECRET || "");
       logger.info("JWT token created", { token });
 
@@ -42,10 +47,10 @@ authRouter.get(
         sameSite: "none",
       });
 
-      logger.info("User authenticated and cookies set", { userId: req.user?._id });
+      logger.info("Cookies set successfully", { userId: req.user?._id });
       res.redirect(ENV.FRONTEND_URL);
     } catch (error) {
-      logger.error("Error during Google authentication callback", { error });
+      logger.error("Error during cookie setting or redirection", { error });
       res.status(500).send("Authentication error");
     }
   }
