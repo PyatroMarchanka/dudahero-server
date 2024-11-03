@@ -3,15 +3,15 @@ import session from "express-session";
 import passport from "passport";
 import { authRouter } from "./src/auth/authRouter";
 import { useGoogleStrategy } from "./src/auth/passport.config";
-import { jwtAuth } from "./src/middleware/jwtAuth";
 import { ENV } from "./config";
 import { userApi } from "./src/mongo/api/user";
 import cors, { CorsOptions } from "cors";
 import bodyParser from "body-parser";
+import { jwtAuth } from "./src/middleware/jwtAuth";
 
 const app = express();
-const port = process.env.BACKEND_PORT || 3000;  // Default to 3000 if not set
-const host = process.env.BACKEND_HOST || '127.0.0.1';  // Default to 127.0.0.1 if not set
+const port = process.env.BACKEND_PORT || 3000; // Default to 3000 if not set
+const host = process.env.BACKEND_HOST || "127.0.0.1"; // Default to 127.0.0.1 if not set
 
 useGoogleStrategy();
 const jsonParser = bodyParser.json();
