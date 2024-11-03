@@ -2,8 +2,6 @@ import express, { Router, Request, Response, NextFunction } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 import { ENV } from "../../config";
-import { ObjectId } from "mongoose";
-import { logger } from "../../logger";  // Import the logger from your setup
 
 export const authRouter: Router = express.Router();
 
