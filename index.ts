@@ -60,7 +60,7 @@ app.get("/v1/profile", async (req, res) => {
     const user = await userApi.getUserById(userId!);
     res.send(user);
   } catch (error) {
-    logger.error("Error fetching profile:", error);
+    console.log("Error fetching profile:", error);
     res.status(403).send(error);
   }
 });
@@ -72,7 +72,7 @@ app.post("/v1/settings-update", jsonParser, async (req, res) => {
     const user = await userApi.updateUserSettinsById(userId!, req.body);
     res.send(user);
   } catch (error) {
-    logger.error("Error updating settings:", error);
+    console.log("Error updating settings:", error);
     res.status(403).send(error);
   }
 });

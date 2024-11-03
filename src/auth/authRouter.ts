@@ -21,7 +21,7 @@ authRouter.get(
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req: Request, res: Response) => {
     if (!req.user) {
-      logger.error("Authentication failed: req.user is undefined");
+      console.log("Authentication failed: req.user is undefined");
       return res.status(500).send("Authentication error");
     }
 
@@ -56,7 +56,7 @@ authRouter.get(
       console.log("Cookies set successfully", { jwtToken: token, userId });
       res.redirect(ENV.FRONTEND_URL);
     } catch (error) {
-      logger.error("Error during cookie setting or redirection", { error });
+      console.log("Error during cookie setting or redirection", { error });
       res.status(500).send("Authentication error");
     }
   }
@@ -65,7 +65,7 @@ authRouter.get(
 authRouter.get("/logout", (req: Request, res: Response, next: NextFunction) => {
   req.logout(function (err) {
     if (err) {
-      logger.error("Logout error", { error: err });
+      console.log("Logout error", { error: err });
       return next(err);
     }
     console.log("User logged out", { userId: (req as any).user?._id });

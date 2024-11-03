@@ -21,7 +21,7 @@ export function useGoogleStrategy() {
         try {
           // Check for user's email in profile
           if (!profile._json.email) {
-            logger.error("Google profile does not contain an email.");
+            console.log("Google profile does not contain an email.");
             throw new Error("User does not have email");
           }
 
@@ -52,7 +52,7 @@ export function useGoogleStrategy() {
             done(null, user);
           }
         } catch (err: any) {
-          logger.error("Error in Google strategy", { error: err });
+          console.log("Error in Google strategy", { error: err });
           done(err);
         }
       }
