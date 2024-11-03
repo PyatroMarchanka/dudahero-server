@@ -1,5 +1,5 @@
-# Use an official Node.js runtime as a parent image
-FROM node:18
+# Stage 1: Build Stage
+FROM node:18 AS builder
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -7,23 +7,32 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install only production dependencies
+RUN npm install --only=production
 
-# If you are building your code for production
-# RUN npm ci --only=production
+# Install Typescript to transpile TypeScript code (only for the build stage)
+RUN npm install --save-dev typescript
 
 # Copy the rest of the application code to the working directory
 COPY . .
 
-# Install Dependencies globally
-RUN npm install -g typescript nodemon ts-node
-
 # Build the TypeScript code
-RUN tsc
+RUN npx tsc
 
-# Make port 3000 available to the world outside this container
+# Stage 2: Run Stage
+FROM node:18-slim
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy only the production dependencies from the builder stage
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+
+# Copy the transpiled application code from the builder stage
+COPY --from=builder /usr/src/app/dist ./dist
+
+# Expose port 3000
 EXPOSE 3000
 
 # Define the command to run the application
-CMD [ "npm", "start" ]
+CMD [ "node", "dist/index.js" ]
