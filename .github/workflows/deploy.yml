@@ -20,7 +20,7 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         port: ${{ secrets.SERVER_PORT }}
         script: |
-          cd /dudahero/dudahero-server
+          cd /dudahero/api
           rm -vrf .env
           git pull origin main
           echo "MONGO_DB_URL=${{ secrets.MONGO_DB_URL }}" > .env
