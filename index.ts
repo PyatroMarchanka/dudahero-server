@@ -9,27 +9,15 @@ import cors, { CorsOptions } from "cors";
 import bodyParser from "body-parser";
 import { jwtAuth } from "./src/middleware/jwtAuth";
 import morgan from "morgan";
-import winston from "winston";
+import { logger } from "./src/utils/logger";
 
 const app = express();
 const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
 const host = process.env.BACKEND_HOST || "127.0.0.1";
 
-// Set up logging
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: 'app.log' })
-  ]
-});
 
 // Log HTTP requests
-app.use(morgan('combined', { stream: { write: (message: any) => console.log(message.trim()) }}));
+app.use(morgan('combined', { stream: { write: (message: any) => logger.info(message.trim()) }}));
 
 useGoogleStrategy();
 const jsonParser = bodyParser.json();
@@ -60,7 +48,7 @@ app.use("*", function (req, res, next) {
     "Origin, X-Requested-With, Content-Type, Accept"
   );
   res.header("Access-Control-Allow-Credentials", "true");
-  console.log('Access-Control headers are set')
+  logger.info('Access-Control headers are set')
   next();
 });
 
@@ -71,7 +59,7 @@ app.get("/v1/profile", async (req, res) => {
     const user = await userApi.getUserById(userId!);
     res.send(user);
   } catch (error) {
-    console.log("Error fetching profile:", error);
+    logger.info("Error fetching profile:", error);
     res.status(403).send(error);
   }
 });
@@ -83,11 +71,11 @@ app.post("/v1/settings-update", jsonParser, async (req, res) => {
     const user = await userApi.updateUserSettinsById(userId!, req.body);
     res.send(user);
   } catch (error) {
-    console.log("Error updating settings:", error);
+    logger.info("Error updating settings:", error);
     res.status(403).send(error);
   }
 });
 
 app.listen(port, host, () => {
-  console.log(`Server listening on http://${host}:${port}`);
+  logger.info(`Server listening on http://${host}:${port}`);
 });

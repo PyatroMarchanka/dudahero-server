@@ -7,11 +7,11 @@ export default async function setupMongooseConnection() {
   }
 
   mongoose.connection.once('open', async () => {
-    console.log('Connected to MongoDB');
+    logger.info('Connected to MongoDB');
   });
-  // console.log<string>(`connectionString ${mong}`);
+  // logger.info<string>(`connectionString ${mong}`);
   mongoose.connection.on('error', async (err: Error) => {
-    console.log('Error connecting to MongoDB. Reason: ${err.message}');
+    logger.info('Error connecting to MongoDB. Reason: ${err.message}');
     process.exit(1);
   });
 
