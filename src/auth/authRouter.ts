@@ -36,14 +36,14 @@ authRouter.get(
     }
 
     try {
-      res.header("Access-Control-Allow-Origin", ENV.FRONTEND_URL);
-      res.header(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept"
-      );
-      res.header("Access-Control-Expose-Headers", "Set-cookie");
-      res.header("Access-Control-Allow-Credentials", "true");
-      res.header("Set-cookie", "true");
+      // res.header("Access-Control-Allow-Origin", ENV.FRONTEND_URL);
+      // res.header(
+      //   "Access-Control-Allow-Headers",
+      //   "Origin, X-Requested-With, Content-Type, Accept"
+      // );
+      // res.header("Access-Control-Expose-Headers", "Set-cookie");
+      // res.header("Access-Control-Allow-Credentials", "true");
+      // res.header("Set-cookie", "true");
       console.log("Access-Control headers are set");
 
       console.log("Google callback received", { user: req.user });
@@ -56,24 +56,24 @@ authRouter.get(
       const userId = (req.user as any)._id.toString();
       console.log("User ID extracted", { userId });
 
-      res.setHeader("Set-Cookie", cookie.serialize("userId", userId));
-      res.setHeader("Set-Cookie", cookie.serialize("jwtToken", token));
 
       // Set cookies with the token and user ID
       res.cookie("jwtToken", token, {
         maxAge: 1000 * 60 * 60 * 128,
-        httpOnly: false,
+        httpOnly: true,
         secure: true,
         path: "/",
         sameSite: "none",
+        domain: '.dudahero.org',
       });
 
       res.cookie("userId", userId, {
         maxAge: 1000 * 60 * 60 * 128,
-        httpOnly: false,
+        httpOnly: true,
         secure: true,
         path: "/",
         sameSite: "none",
+        domain: '.dudahero.org',
       });
 
       console.log("Cookies set successfully", { jwtToken: token, userId });
