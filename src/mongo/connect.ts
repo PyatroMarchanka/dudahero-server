@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { ENV } from '../../config';
+import { logger } from '../utils/logger';
 
 export default async function setupMongooseConnection() {
   if (!ENV.MONGO_DB_URL) {
