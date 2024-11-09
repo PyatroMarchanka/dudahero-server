@@ -11,27 +11,27 @@ jobs:
     environment: production
 
     steps:
-
-    - name: Deploy to server via SSH
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USER }}
-        key: ${{ secrets.SERVER_SSH_KEY }}
-        port: ${{ secrets.SERVER_PORT }}
-        script: |
-          cd /dudahero/api
-          rm -vrf .env
-          git pull origin main
-          echo "MONGO_DB_URL=${{ secrets.MONGO_DB_URL }}" > .env
-          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
-          echo "MONGO_DB_USER=${{ secrets.MONGO_DB_USER }}" >> .env
-          echo "MONGO_DB_PASS=${{ secrets.MONGO_DB_PASS }}" >> .env
-          echo "MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }}" >> .env
-          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
-          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
-          echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
-          echo "BACKEND_PORT=${{ secrets.BACKEND_PORT }}" >> .env
-          docker-compose down;docker-compose up -d --build
+      - name: Deploy to server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            cd /dudahero/api
+            rm -vrf .env
+            git pull origin main
+            echo "MONGO_DB_URL=${{ secrets.MONGO_DB_URL }}" > .env
+            echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
+            echo "MONGO_DB_USER=${{ secrets.MONGO_DB_USER }}" >> .env
+            echo "MONGO_DB_PASS=${{ secrets.MONGO_DB_PASS }}" >> .env
+            echo "MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }}" >> .env
+            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+            echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
+            echo "BACKEND_PORT=${{ secrets.BACKEND_PORT }}" >> .env
+            echo "BACKEND_HOST=${{ secrets.BACKEND_HOST }}" >> .env
+            docker-compose down;docker-compose up -d --build
