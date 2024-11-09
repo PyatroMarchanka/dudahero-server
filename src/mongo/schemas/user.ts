@@ -7,6 +7,7 @@ const userSettingsSchema: Schema = new Schema<UserSettings>({
   userPreclick: { type: Boolean, required: true },
   language: { type: String, required: true },
   transpose: { type: Number, required: true },
+  userLastSongUrl: { type: String, required: false },
 });
 
 const userSchema = new Schema<User>({

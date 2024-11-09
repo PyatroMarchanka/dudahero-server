@@ -14,4 +14,5 @@ export interface UserSettings {
     userPreclick: boolean;
     language: Languages;
     transpose: number;
+    userLastSongUrl?: string;
 }
