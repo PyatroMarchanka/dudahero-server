@@ -34,4 +34,4 @@ jobs:
             echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
             echo "BACKEND_PORT=${{ secrets.BACKEND_PORT }}" >> .env
             echo "BACKEND_HOST=${{ secrets.BACKEND_HOST }}" >> .env
-            docker-compose down;docker-compose up -d --build
+            docker-compose down;docker-compose build --no-cache;docker-compose up -d
