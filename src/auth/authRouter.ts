@@ -42,25 +42,41 @@ authRouter.get(
       // Extract and log user ID
       const userId = (req.user as any)._id.toString();
 
+      if (ENV.IS_DEV) {
+        // Set cookies with the token and user ID
+        res.cookie("jwtToken", token, {
+          secure: false, // Set to true if using HTTPS
+          sameSite: "lax",
+          maxAge: 1000 * 60 * 60 * 128,
+          path: '/',
+        });
 
-      // Set cookies with the token and user ID
-      res.cookie("jwtToken", token, {
-        maxAge: 1000 * 60 * 60 * 128,
-        httpOnly: true,
-        secure: true,
-        path: "/",
-        sameSite: "none",
-        domain: '.dudahero.org',
-      });
+        res.cookie("userId", userId, {
+          secure: false, // Set to true if using HTTPS
+          sameSite: "lax",
+          maxAge: 1000 * 60 * 60 * 128,
+          path: '/',
+        });
+      } else {
+        // Set cookies with the token and user ID
+        res.cookie("jwtToken", token, {
+          maxAge: 1000 * 60 * 60 * 128,
+          httpOnly: true,
+          secure: true,
+          path: "/",
+          sameSite: "none",
+          domain: ".dudahero.org",
+        });
 
-      res.cookie("userId", userId, {
-        maxAge: 1000 * 60 * 60 * 128,
-        httpOnly: true,
-        secure: true,
-        path: "/",
-        sameSite: "none",
-        domain: '.dudahero.org',
-      });
+        res.cookie("userId", userId, {
+          maxAge: 1000 * 60 * 60 * 128,
+          httpOnly: true,
+          secure: true,
+          path: "/",
+          sameSite: "none",
+          domain: ".dudahero.org",
+        });
+      }
 
       res.redirect(ENV.FRONTEND_URL);
     } catch (error) {
@@ -76,7 +92,6 @@ authRouter.get("/logout", (req: Request, res: Response, next: NextFunction) => {
       logger.info("Logout error", { error: err });
       return next(err);
     }
-    logger.info("User logged out", { userId: (req as any).user?._id });
 
     res.clearCookie("jwtToken");
     res.clearCookie("userId");

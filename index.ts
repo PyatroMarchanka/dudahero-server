@@ -13,11 +13,15 @@ import { logger } from "./src/utils/logger";
 
 const app = express();
 const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
-const host = process.env.BACKEND_HOST || "127.0.0.1";
-
+const host =
+  process.env.BACKEND_HOST || (ENV.IS_DEV ? "localhost" : "127.0.0.1");
 
 // Log HTTP requests
-app.use(morgan('combined', { stream: { write: (message: any) => logger.info(message.trim()) }}));
+app.use(
+  morgan("combined", {
+    stream: { write: (message: any) => logger.info(message.trim()) },
+  })
+);
 
 useGoogleStrategy();
 const jsonParser = bodyParser.json();
@@ -48,7 +52,7 @@ app.use("*", function (req, res, next) {
     "Origin, X-Requested-With, Content-Type, Accept"
   );
   res.header("Access-Control-Allow-Credentials", "true");
-  logger.info('Access-Control headers are set')
+  logger.info("Access-Control headers are set");
   next();
 });
 
@@ -57,6 +61,7 @@ app.get("/v1/profile", async (req, res) => {
     jwtAuth(req);
     const userId = req.header("userId");
     const user = await userApi.getUserById(userId!);
+    
     res.send(user);
   } catch (error) {
     logger.info("Error fetching profile:", error);
@@ -67,6 +72,7 @@ app.get("/v1/profile", async (req, res) => {
 app.post("/v1/settings-update", jsonParser, async (req, res) => {
   try {
     jwtAuth(req);
+    console.log("req.body", req.body);
     const userId = req.header("userId");
     const user = await userApi.updateUserSettinsById(userId!, req.body);
     res.send(user);

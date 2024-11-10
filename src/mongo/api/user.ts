@@ -30,13 +30,19 @@ const addUser = async (user: User) => {
 
 const updateUserSettinsById = async (id: string, data: UserSettings) => {
   await setupMongooseConnection();
+  const entries = Object.entries(data);
 
-  const user = await UserModel.findOneAndUpdate(
+  const updateData = entries.reduce((acc, [key, value]) => {
+    if (value !== undefined) {
+      acc[`settings.${key}`] = value;
+    }
+    return acc;
+  }, {} as any);
+
+  await UserModel.findOneAndUpdate(
     { _id: new mongoose.Types.ObjectId(id) },
-    { settings: { ...data } }
+    { $set: updateData }
   );
-
-  return;
 };
 
 export const userApi = {

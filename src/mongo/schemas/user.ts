@@ -2,12 +2,12 @@ import { model, Schema } from "mongoose";
 import { User, UserSettings } from "../../interfaces/user";
 
 const userSettingsSchema: Schema = new Schema<UserSettings>({
-  bagpipe: { type: String, required: true },
+  bagpipeType: { type: String, required: true },
   tempo: { type: Number, required: true },
-  userPreclick: { type: Boolean, required: true },
+  isPreclick: { type: Boolean, required: true },
   language: { type: String, required: true },
   transpose: { type: Number, required: true },
-  userLastSongUrl: { type: String, required: false },
+  lastSongUrl: { type: String, required: false },
 });
 
 const userSchema = new Schema<User>({
@@ -15,6 +15,7 @@ const userSchema = new Schema<User>({
   email: { type: String, required: true },
   picture: { type: String, required: true },
   settings: { type: userSettingsSchema, required: true },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 export const UserModel = model("users", userSchema, "users");
