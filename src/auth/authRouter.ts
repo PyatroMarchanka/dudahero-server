@@ -61,7 +61,7 @@ authRouter.get(
         // Set cookies with the token and user ID
         res.cookie("jwtToken", token, {
           maxAge: 1000 * 60 * 60 * 128,
-          httpOnly: false,
+          // httpOnly: false,
           secure: true,
           path: "/",
           sameSite: "none",
@@ -70,7 +70,7 @@ authRouter.get(
 
         res.cookie("userId", userId, {
           maxAge: 1000 * 60 * 60 * 128,
-          httpOnly: false,
+          // httpOnly: false,
           secure: true,
           path: "/",
           sameSite: "none",
