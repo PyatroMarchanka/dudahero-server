@@ -48,6 +48,19 @@ authRouter.post("/google-auth", async (req, res) => {
   }
 });
 
+authRouter.post("/some-auth", async (req, res) => {
+  const { credential, client_id } = req.body;
+  try {
+    res
+      .status(200)
+      // .cookie("jwtToken", token, { httpOnly })
+      // .cookie("userId", (user as any)._id.toString(), { httpOnly })
+      .json({ user: "user" });
+  } catch (err) {
+    res.status(400).json({ err });
+  }
+});
+
 // Middleware to log all requests to authRouter
 authRouter.use((req: Request, res: Response, next: NextFunction) => {
   logger.info("Incoming request", {
