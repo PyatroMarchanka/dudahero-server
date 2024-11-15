@@ -82,7 +82,7 @@ app.post("/some-auth", jsonParser, async (req, res) => {
       .status(200)
       // .cookie("jwtToken", token, { httpOnly })
       // .cookie("userId", (user as any)._id.toString(), { httpOnly })
-      .json({ user: "user" });
+      .send({ user: "user" });
   } catch (err) {
     res.status(400).json({ err });
   }
@@ -122,9 +122,9 @@ app.post("/google-auth", jsonParser, async (req, res) => {
       .status(200)
       .cookie("jwtToken", token, { httpOnly })
       .cookie("userId", (user as any)._id.toString(), { httpOnly })
-      .json({ user: "user" });
+      .send({ user: "user" });
   } catch (err) {
-    res.status(400).json({ err });
+    res.status(400).send({ err });
   }
 });
 
