@@ -35,6 +35,18 @@ authRouter.post("/google-auth", async (req, res) => {
     }
 
     const token = jwt.sign({ user: req.user }, ENV.JWT_SECRET || "");
+
+    res.removeHeader("Access-Control-Allow-Origin")
+    res.setHeader("Access-Control-Allow-Origin", ENV.FRONTEND_URL);
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
+    );
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    );
+    
     res
       .status(200)
       .cookie("jwtToken", token, { httpOnly })
