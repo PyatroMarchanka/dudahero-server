@@ -20,4 +20,10 @@ const addSong = async (song: ISong) => {
   return await SongModel.create(song);
 };
 
-export const songApi = { getAllSongs, getSongById, addSong };
+const updateSong = async (id: string, song: ISong) => {
+  await setupMongooseConnection();
+
+  return await SongModel.updateOne({ _id: id }, song);
+}
+
+export const songApi = { getAllSongs, getSongById, addSong, updateSong };
