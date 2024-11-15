@@ -23,8 +23,8 @@ authRouter.post("/google-auth", async (req, res) => {
     // });
     // console.log(ticket);
     // const payload = ticket.getPayload();
-    let user = await userApi.getUserByEmail('karotkavichy@gmail.com');
-    console.log('user', user)
+    // let user = await userApi.getUserByEmail('karotkavichy@gmail.com');
+    // console.log('user', user)
     // if (!user) {
     //   // Create a new user if none exists
     //   const newUser: User = {
@@ -36,13 +36,13 @@ authRouter.post("/google-auth", async (req, res) => {
     //   user = await userApi.addUser(newUser);
     // }
 
-    const token = jwt.sign({ user: req.user }, ENV.JWT_SECRET || "");
+    // const token = jwt.sign({ user: req.user }, ENV.JWT_SECRET || "");
 
     res
       .status(200)
-      .cookie("jwtToken", token, { httpOnly })
-      .cookie("userId", (user as any)._id.toString(), { httpOnly })
-      .json({ user });
+      // .cookie("jwtToken", token, { httpOnly })
+      // .cookie("userId", (user as any)._id.toString(), { httpOnly })
+      .json({ user: "user" });
   } catch (err) {
     res.status(400).json({ err });
   }
