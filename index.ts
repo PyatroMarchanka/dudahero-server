@@ -15,9 +15,7 @@ const app = express();
 const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
 const host =
   process.env.BACKEND_HOST || (ENV.IS_DEV ? "localhost" : "127.0.0.1");
-const frontendUrl = ENV.IS_DEV
-  ? "http://localhost:3000"
-  : "https://dudahero.org";
+const frontendUrl = ENV.IS_DEV ? "http://localhost:3000" : ENV.FRONTEND_URL;
 
 // Log HTTP requests
 app.use(
@@ -38,7 +36,7 @@ app.use(
 
 app.use(
   cors({
-    origin: ENV.FRONTEND_URL,
+    origin: frontendUrl,
     credentials: true,
   } as CorsOptions)
 );
@@ -50,6 +48,7 @@ app.use("/v1/auth", authRouter);
 
 // Curb Cores Error by adding a header here
 app.use((req, res, next) => {
+  res.removeHeader("Access-Control-Allow-Origin")
   res.setHeader("Access-Control-Allow-Origin", frontendUrl);
   res.setHeader(
     "Access-Control-Allow-Headers",
