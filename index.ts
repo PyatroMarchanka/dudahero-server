@@ -9,12 +9,15 @@ import cors, { CorsOptions } from "cors";
 import bodyParser from "body-parser";
 import { jwtAuth } from "./src/middleware/jwtAuth";
 import morgan from "morgan";
-import { logger } from "./src/utils/logger"
+import { logger } from "./src/utils/logger";
 
 const app = express();
 const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
 const host =
   process.env.BACKEND_HOST || (ENV.IS_DEV ? "localhost" : "127.0.0.1");
+const frontendUrl = ENV.IS_DEV
+  ? "http://localhost:3000"
+  : "https://dudahero.org";
 
 // Log HTTP requests
 app.use(
@@ -47,7 +50,7 @@ app.use("/v1/auth", authRouter);
 
 // Curb Cores Error by adding a header here
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", ENV.FRONTEND_URL);
+  res.setHeader("Access-Control-Allow-Origin", frontendUrl);
   res.setHeader(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
@@ -64,7 +67,7 @@ app.get("/v1/profile", async (req, res) => {
     jwtAuth(req);
     const userId = req.header("userId");
     const user = await userApi.getUserById(userId!);
-    
+
     res.send(user);
   } catch (error) {
     logger.info("Error fetching profile:", error);
