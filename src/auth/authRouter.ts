@@ -15,14 +15,16 @@ export const authRouter: Router = express.Router();
 
 authRouter.post("/google-auth", async (req, res) => {
   const { credential, client_id } = req.body;
+  console.log(credential, client_id);
   try {
     const ticket = await client.verifyIdToken({
       idToken: credential,
       audience: client_id,
     });
+    console.log(ticket);
     const payload = ticket.getPayload();
     let user = await userApi.getUserByEmail(payload.email);
-
+    console.log('user', user)
     if (!user) {
       // Create a new user if none exists
       const newUser: User = {
