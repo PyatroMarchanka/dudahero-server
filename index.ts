@@ -9,7 +9,7 @@ import cors, { CorsOptions } from "cors";
 import bodyParser from "body-parser";
 import { jwtAuth } from "./src/middleware/jwtAuth";
 import morgan from "morgan";
-import { logger } from "./src/utils/logger";
+import { logger } from "./src/utils/logger"
 
 const app = express();
 const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
@@ -47,7 +47,7 @@ app.use("/v1/auth", authRouter);
 
 // Curb Cores Error by adding a header here
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", ENV.FRONTEND_URL);
   res.setHeader(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
@@ -75,7 +75,6 @@ app.get("/v1/profile", async (req, res) => {
 app.post("/v1/settings-update", jsonParser, async (req, res) => {
   try {
     jwtAuth(req);
-    console.log("req.body", req.body);
     const userId = req.header("userId");
     const user = await userApi.updateUserSettinsById(userId!, req.body);
     res.send(user);
