@@ -34,7 +34,6 @@ songRouter.get("/", async (req, res) => {
 songRouter.get("/:id", async (req, res) => {
   try {
     const song = await SongModel.findById(req.params.id);
-    console.log('song', song)
     if (!song) {
       return res
         .status(404)
@@ -48,7 +47,6 @@ songRouter.get("/:id", async (req, res) => {
 
 // Update a song by ID
 songRouter.put("/:id", async (req, res) => {
-  console.log("req.body", req.body);
   try {
     const allowedUpdates = [
       "name",
@@ -73,10 +71,6 @@ songRouter.put("/:id", async (req, res) => {
     );
 
     if (unvalidUpdates.length !== 0) {
-      console.log(
-        `Invalid updates - ${unvalidUpdates.join(", ")}!, valid are: ` +
-          allowedUpdates.join(", ")
-      );
       return res.status(400).send({
         error: `Invalid updates!, valid are: ` + allowedUpdates.join(", "),
       });
