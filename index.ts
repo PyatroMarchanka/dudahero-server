@@ -66,7 +66,7 @@ app.get("/v1/profile", async (req, res) => {
 app.post("/v1/settings-update", jsonParser, async (req, res) => {
   try {
     jwtAuth(req);
-    const userId = req.header("userId");
+    const userId = req.cookies.userId;
     const user = await userApi.updateUserSettinsById(userId!, req.body);
     res.send(user);
   } catch (error) {
