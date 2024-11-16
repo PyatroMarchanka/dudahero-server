@@ -20,8 +20,10 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
             cd /dudahero/api
+            docker-compose down
             rm -vrf .env
             git pull origin main
+            git log | head -n 10
             echo "MONGO_DB_URL=${{ secrets.MONGO_DB_URL }}" > .env
             echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
             echo "MONGO_DB_USER=${{ secrets.MONGO_DB_USER }}" >> .env
@@ -34,4 +36,5 @@ jobs:
             echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
             echo "BACKEND_PORT=${{ secrets.BACKEND_PORT }}" >> .env
             echo "BACKEND_HOST=${{ secrets.BACKEND_HOST }}" >> .env
-            docker-compose down;docker-compose build --no-cache;docker-compose up -d
+            docker-compose build --no-cache
+            docker-compose up -d
