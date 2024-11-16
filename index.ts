@@ -35,9 +35,12 @@ app.use(
   })
 );
 
-app.use(
-  cors()
-);
+// app.use(
+//   cors({
+//     // origin: frontendUrl,
+//     // credentials: true,
+//   } as CorsOptions)
+// );
 
 app.use(passport.initialize());
 app.use(passport.session());
