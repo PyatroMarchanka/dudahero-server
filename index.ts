@@ -11,6 +11,7 @@ import { jwtAuth } from "./src/middleware/jwtAuth";
 import morgan from "morgan";
 import { logger } from "./src/utils/logger";
 import { songRouter } from "./src/routers/song.router";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
@@ -46,6 +47,7 @@ if (ENV.IS_DEV) {
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
+app.use(cookieParser());
 app.use("/v1/auth", authRouter);
 app.use("/v1/songs", songRouter);
 
