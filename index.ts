@@ -36,10 +36,7 @@ app.use(
 );
 
 app.use(
-  cors({
-    origin: frontendUrl,
-    // credentials: true,
-  } as CorsOptions)
+  cors()
 );
 
 app.use(passport.initialize());
