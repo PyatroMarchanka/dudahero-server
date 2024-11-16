@@ -1,9 +1,9 @@
 import passport from "passport";
 import passportGoogle from "passport-google-oauth20";
-import { userApi } from "../mongo/api/user";
-import { defaultSetings, User } from "../interfaces/user";
-import { ENV } from "../../config";
-import { logger } from "../utils/logger";
+import { userApi } from "../../mongo/api/user";
+import { defaultSetings, User } from "../../interfaces/user";
+import { ENV } from "../../../config";
+import { logger } from "../../utils/logger";
 
 const GoogleStrategy = passportGoogle.Strategy;
 

@@ -1,8 +1,8 @@
 import express from "express";
 import session from "express-session";
 import passport from "passport";
-import { authRouter } from "./src/auth/authRouter";
-import { useGoogleStrategy } from "./src/auth/passport.config";
+import { authRouter } from "./src/routers/auth/auth.router";
+import { useGoogleStrategy } from "./src/routers/auth/passport.config";
 import { ENV } from "./config";
 import { userApi } from "./src/mongo/api/user";
 import cors, { CorsOptions } from "cors";
@@ -10,6 +10,7 @@ import bodyParser from "body-parser";
 import { jwtAuth } from "./src/middleware/jwtAuth";
 import morgan from "morgan";
 import { logger } from "./src/utils/logger";
+import { songRouter } from "./src/routers/song.router";
 
 const app = express();
 const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
@@ -45,6 +46,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
 app.use("/v1/auth", authRouter);
+app.use("/v1/songs", songRouter);
+
 
 // Curb Cores Error by adding a header here
 app.use((req, res, next) => {

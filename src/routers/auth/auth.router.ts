@@ -1,10 +1,10 @@
 import express, { Router, Request, Response, NextFunction } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
-import { ENV } from "../../config";
-import { logger } from "../utils/logger";
-import { userApi } from "../mongo/api/user";
-import { defaultSetings, User } from "../interfaces/user";
+import { ENV } from "../../../config";
+import { logger } from "../../utils/logger";
+import { userApi } from "../../mongo/api/user";
+import { defaultSetings, User } from "../../interfaces/user";
 
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client();
