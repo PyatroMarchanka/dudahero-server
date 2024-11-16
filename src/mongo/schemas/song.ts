@@ -15,6 +15,9 @@ const songSchema: Schema = new Schema<ISong>({
   bagpipesToPlay: { type: [String], required: true },
   type: { type: String, required: true },
   links: { type: [linkSchema], required: false },
+  about: { type: String, required: false },
+  id: { type: String, required: true },
+  trinscribedBy: { type: String, required: false },
 });
 
 
