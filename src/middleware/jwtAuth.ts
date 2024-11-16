@@ -12,6 +12,7 @@ export const jwtAuth = (req: Request) => {
   try {
     const decoded = jwt.verify(jwtToken, ENV.JWT_SECRET || "");
     req.user = decoded;
+    console.log('jwt is OK');
   } catch (err) {
     throw new Error("Invalid token");
   }
