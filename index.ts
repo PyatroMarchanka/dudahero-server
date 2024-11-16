@@ -55,9 +55,7 @@ app.get("/v1/profile", async (req, res) => {
   try {
     jwtAuth(req);
     const userId = req.cookies.userId;
-    console.log("userId from cookie", userId);
     const user = await userApi.getUserById(userId!);
-    console.log("profile", user);
     res.send(user);
   } catch (error) {
     logger.info("Error fetching profile:", error);
