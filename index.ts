@@ -34,6 +34,7 @@ app.use(
     saveUninitialized: true,
   })
 );
+
 if (ENV.IS_DEV) {
   app.use(
     cors({

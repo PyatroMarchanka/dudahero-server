@@ -4,6 +4,7 @@ import { ENV } from '../../config';
 
 export const jwtAuth = (req: Request) => {
         const token = req.header('Authorization');
+        console.log('cookies', req.cookies)
         if (!token) {
             throw new Error("Authorization token is missing");
         }
