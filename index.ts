@@ -34,14 +34,14 @@ app.use(
     saveUninitialized: true,
   })
 );
-
-// app.use(
-//   cors({
-//     // origin: frontendUrl,
-//     // credentials: true,
-//   } as CorsOptions)
-// );
-
+if (ENV.IS_DEV) {
+  app.use(
+    cors({
+      origin: frontendUrl,
+      credentials: true,
+    } as CorsOptions)
+  );
+}
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
