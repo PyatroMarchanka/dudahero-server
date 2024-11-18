@@ -33,6 +33,7 @@ export interface ISong {
   trinscribedBy: string;
   originalTempo: number;
   links: SongLink[];
+  lyrycs?: string;
 }
 
 export interface SongLink {

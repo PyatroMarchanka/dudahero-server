@@ -50,9 +50,7 @@ songRouter.put("/:id", async (req, res) => {
   try {
     const allowedUpdates = [
       "name",
-      "artist",
-      "genre",
-      "duration",
+      "lyrycs",
       "bagpipesToPlay",
       "timeSignature",
       "pathName",
