@@ -16,6 +16,7 @@ const userSchema = new Schema<User>({
   picture: { type: String, required: true },
   settings: { type: userSettingsSchema, required: true },
   updatedAt: { type: Date, default: Date.now },
+  isAdmin: { type: Boolean, required: false },
 });
 
 export const UserModel = model("users", userSchema, "users");

@@ -12,6 +12,7 @@ import morgan from "morgan";
 import { logger } from "./src/utils/logger";
 import { songRouter } from "./src/routers/song.router";
 import cookieParser from "cookie-parser";
+import { adminRouter } from "./src/routers/admin.router";
 
 const app = express();
 const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
@@ -50,6 +51,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/v1/auth", authRouter);
 app.use("/v1/songs", songRouter);
+app.use("/v1/admin", adminRouter);
 
 app.get("/v1/profile", async (req, res) => {
   try {

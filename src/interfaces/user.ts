@@ -7,6 +7,7 @@ export interface User {
   picture?: string;
   settings: UserSettings;
   updatedAt?: Date;
+  isAdmin?: boolean;
 }
 
 export interface UserSettings {

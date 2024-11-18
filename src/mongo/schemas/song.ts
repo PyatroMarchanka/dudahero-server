@@ -18,6 +18,7 @@ const songSchema: Schema = new Schema<ISong>({
   about: { type: String, required: false },
   id: { type: String, required: true },
   trinscribedBy: { type: String, required: false },
+  lyrycs: { type: String, required: false },
 });
 
 
