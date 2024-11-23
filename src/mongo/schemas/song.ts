@@ -1,10 +1,16 @@
 import { model, Schema } from "mongoose";
-import { ISong, LinkTypes } from "../../interfaces/song";
+import { ISong, IStats, LinkTypes } from "../../interfaces/song";
 
 const linkSchema = new Schema<LinkTypes>({
   type: { type: String, required: true },
   name: { type: String, required: true },
   url: { type: String, required: true },
+});
+
+const statsSchema = new Schema<IStats>({
+  views: { type: Number, required: true },
+  likes: { type: Number, required: true },
+  lastViewed: { type: Date, required: true },
 });
 
 const songSchema: Schema = new Schema<ISong>({
@@ -19,7 +25,7 @@ const songSchema: Schema = new Schema<ISong>({
   id: { type: String, required: true },
   trinscribedBy: { type: String, required: false },
   lyrycs: { type: String, required: false },
+  stats: { type: statsSchema, required: false },
 });
-
 
 export const SongModel = model("songs", songSchema, "songs");

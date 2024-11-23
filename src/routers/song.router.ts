@@ -1,6 +1,7 @@
 import express from "express";
 import { SongModel } from "../mongo/schemas/song";
 import setupMongooseConnection from "../mongo/connect";
+import mongoose from "mongoose";
 
 export const songRouter = express.Router();
 
@@ -56,4 +57,29 @@ songRouter.get("/short/names", async (req, res) => {
   } catch (error) {
     res.status(500).send(error);
   }
+});
+
+songRouter.put("/plays/:id", async (req, res) => {
+  try {
+    console.log("song", req.params.id);
+    const song = await SongModel.findOneAndUpdate(
+      { _id: new mongoose.Types.ObjectId(req.params.id) },
+      { $inc: { "stats.views": 1 } },
+      { new: true, runValidators: true }
+    );
+
+    if (!song) {
+      return res
+        .status(404)
+        .send({ error: `Song not found: id =  ${req.params.id}` });
+    }
+    res.status(200).send(song);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error);
+  }
+});
+
+songRouter.put("/test/test", async (req, res) => {
+  // for tests only
 });

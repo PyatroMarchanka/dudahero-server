@@ -34,6 +34,7 @@ export interface ISong {
   originalTempo: number;
   links: SongLink[];
   lyrycs?: string;
+  stats: IStats;
 }
 
 export interface SongLink {
@@ -55,3 +56,10 @@ export enum BagpipeTypes {
   Dudelsack = "ddl",
   Highlander = "ghb",
 }
+
+export interface IStats {
+  views: number;
+  likes: number;
+  lastViewed: Date;
+}
+
