@@ -22,22 +22,25 @@ adminRouter.post("/song", async (req, res) => {
 adminRouter.put("/song/:id", async (req, res) => {
   try {
     await adminJwtAuth(req);
+
     const allowedUpdates = [
-      "name",
-      "lyrycs",
-      "bagpipesToPlay",
-      "timeSignature",
-      "pathName",
-      "labels",
-      "about",
-      "transcribedBy",
-      "originalTempo",
-      "links",
       "_id",
+      "labels",
+      "timeSignature",
+      "name",
       "type",
+      "pathName",
       "id",
+      "about",
+      "originalTempo",
+      "transcribedBy",
+      "bagpipesToPlay",
+      "links",
+      "lyrycs",
+      "stats",
     ];
     const updates = Object.keys(req.body);
+    console.log("updates", updates);
     const unvalidUpdates = updates.filter(
       (update) => !allowedUpdates.includes(update)
     );

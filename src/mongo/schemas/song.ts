@@ -9,8 +9,8 @@ const linkSchema = new Schema<LinkTypes>({
 
 const statsSchema = new Schema<IStats>({
   views: { type: Number, required: true },
-  likes: { type: Number, required: true },
-  lastViewed: { type: Date, required: true },
+  likes: { type: Number, required: false },
+  lastViewed: { type: Date, required: false },
 });
 
 const songSchema: Schema = new Schema<ISong>({
