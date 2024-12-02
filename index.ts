@@ -53,6 +53,13 @@ app.use("/v1/auth", authRouter);
 app.use("/v1/songs", songRouter);
 app.use("/v1/admin", adminRouter);
 
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.status(200).end();
+});
+
 app.get("/v1/profile", async (req, res) => {
   try {
     jwtAuth(req);
