@@ -20,7 +20,6 @@ const host =
   process.env.BACKEND_HOST || (ENV.IS_DEV ? "localhost" : "127.0.0.1");
 const frontendUrl = ENV.IS_DEV ? "http://localhost:3000" : ENV.FRONTEND_URL;
 
-
 // Log HTTP requests
 app.use(
   morgan("combined", {
@@ -38,16 +37,23 @@ app.use(
   })
 );
 
-app.options('*', cors())
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if (req.method === 'OPTIONS') {
+app.options("*", (req, res, next) => {
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
   next();
 });
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  next();
+});
 
 if (ENV.IS_DEV) {
   app.use(
@@ -64,7 +70,6 @@ app.use(cookieParser());
 app.use("/v1/auth", authRouter);
 app.use("/v1/songs", songRouter);
 app.use("/v1/admin", adminRouter);
-
 
 app.get("/v1/profile", async (req, res) => {
   try {
