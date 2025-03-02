@@ -26,9 +26,9 @@ playlistRouter.get("/", async (req, res) => {
     res
       .status(201)
       .send({
-        playlists: playlists.map((p) => ({ name: p.name, songsIds: p.songsIds, _id: p._id })),
-        songs: songs.map((s) => ({ name: s.name, tags: s.tags, _id: s._id })),
-        tags: tags[0]?.tags,
+        playlists: playlists?.map((p) => ({ name: p.name, songsIds: p.songsIds, _id: p._id })) ?? [],
+        songs: songs?.map((s) => ({ name: s.name, tags: s.tags, _id: s._id })) ?? [],
+        tags: tags[0]?.tags ?? [],
       });
   } catch (error) {
     console.log(error);
