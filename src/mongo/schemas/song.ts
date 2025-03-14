@@ -23,7 +23,7 @@ const songSchema: Schema = new Schema<ISong>({
   links: { type: [linkSchema], required: false },
   about: { type: String, required: false },
   id: { type: String, required: true },
-  trinscribedBy: { type: String, required: false },
+  transcribedBy: { type: String, required: false },
   lyrycs: { type: String, required: false },
   stats: { type: statsSchema, required: false },
 });

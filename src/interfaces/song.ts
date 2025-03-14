@@ -30,7 +30,7 @@ export interface ISong {
   labels: string[];
   id: string;
   about: string;
-  trinscribedBy: string;
+  transcribedBy: string;
   originalTempo: number;
   links: SongLink[];
   lyrycs?: string;
