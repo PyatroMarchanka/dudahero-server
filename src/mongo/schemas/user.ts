@@ -8,6 +8,7 @@ const userSettingsSchema: Schema = new Schema<UserSettings>({
   language: { type: String, required: true },
   transpose: { type: Number, required: true },
   lastSongUrl: { type: String, required: false },
+  view: { type: String, required: true },
 });
 
 const userSchema = new Schema<User>({
