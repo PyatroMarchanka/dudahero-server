@@ -86,20 +86,20 @@ authRouter.get(
         res.cookie("jwtToken", token, {
           secure: false, // Set to true if using HTTPS
           sameSite: "lax",
-          maxAge: 1000 * 60 * 60 * 128,
+          maxAge: 1000 * 60 * 60 * 24 * 30,
           path: "/",
         });
 
         res.cookie("userId", userId, {
           secure: false, // Set to true if using HTTPS
           sameSite: "lax",
-          maxAge: 1000 * 60 * 60 * 128,
+          maxAge: 1000 * 60 * 60 * 24 * 30,
           path: "/",
         });
       } else {
         // Set cookies with the token and user ID
         res.cookie("jwtToken", token, {
-          maxAge: 1000 * 60 * 60 * 128,
+          maxAge: 1000 * 60 * 60 * 24 * 30,
           // httpOnly: false,
           secure: true,
           path: "/",
@@ -108,7 +108,7 @@ authRouter.get(
         });
 
         res.cookie("userId", userId, {
-          maxAge: 1000 * 60 * 60 * 128,
+          maxAge: 1000 * 60 * 60 * 24 * 30,
           // httpOnly: false,
           secure: true,
           path: "/",
