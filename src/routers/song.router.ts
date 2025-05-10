@@ -99,6 +99,24 @@ songRouter.get("/top/plays", async (req, res) => {
   }
 });
 
+// Get recently added songs
+songRouter.get("/top/recent", async (req, res) => {
+  try {
+    const query = req.query;
+    const limit = query.limit ? parseInt(query.limit as string) : 10;
+    
+    const recentSongs = await SongModel.find({})
+      .sort({ _id: -1 }) // Sort by creation date (newest first)
+      .limit(limit)
+      .select("name type bagpipesToPlay id timeSignature labels stats.views");
+    
+    res.status(200).send(recentSongs);
+  } catch (error) {
+    console.error("Error fetching recent songs:", error);
+    res.status(500).send(error);
+  }
+});
+
 songRouter.put("/test/test", async (req, res) => {
   // for tests only
 });

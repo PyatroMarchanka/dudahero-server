@@ -2,11 +2,15 @@ import winston from "winston";
 
 // Set up logging
 export const logger = winston.createLogger({
-  level: "info",
   format: winston.format.combine(
     winston.format.timestamp(),
-    winston.format.json()
+    winston.format.colorize({ all: true }),
+    winston.format.printf(({ timestamp, message }) => {
+      return `${timestamp} ${message}`;
+    })
   ),
+
+
   transports: [
     new winston.transports.Console(),
     new winston.transports.File({ filename: "app.log" }),

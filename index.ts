@@ -15,6 +15,7 @@ import cookieParser from "cookie-parser";
 import { adminRouter } from "./src/routers/admin.router";
 import { playlistRouter } from "./src/routers/playlists.router";
 import blogRouter from "./src/routers/blog.router";
+import { logRoutes } from "./src/utils/logRoutes";
 
 const app = express();
 const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
@@ -119,6 +120,10 @@ app.post("/v1/settings-update", jsonParser, async (req, res) => {
     res.status(403).send(error);
   }
 });
+
+
+// Log routes before starting the server
+logRoutes(app);
 
 app.listen(port, host, () => {
   logger.info(`Server listening on http://${host}:${port}`);
