@@ -35,6 +35,8 @@ export interface ISong {
   links: SongLink[];
   lyrycs?: string;
   stats: IStats;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface SongLink {

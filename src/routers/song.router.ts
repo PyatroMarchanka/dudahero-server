@@ -33,6 +33,8 @@ songRouter.get("/:id", async (req, res) => {
   }
 });
 
+
+
 // Find songs by substring in song name
 songRouter.get("/search/:substring", async (req, res) => {
   try {
@@ -77,6 +79,23 @@ songRouter.put("/plays/:id", async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).send(error);
+  }
+});
+
+// Get top 10 songs by views
+songRouter.get("/top/plays", async (req, res) => {
+  try {
+    const query = req.query;
+    const limit = query.limit ? parseInt(query.limit as string) : 10;
+    const topSongs = await SongModel.find({})
+      .sort({ "stats.views": -1 })
+      .limit(limit)
+      .select("name type bagpipesToPlay id timeSignature labels stats.views");
+    
+    res.status(200).send(topSongs);
+  } catch (error) {
+    console.error("Error fetching top songs:", error);
+    res.status(500).send(error);
   }
 });
 

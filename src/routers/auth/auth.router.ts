@@ -30,6 +30,7 @@ authRouter.post("/google-auth", async (req, res) => {
         email: payload.email!,
         picture: payload.picture,
         settings: defaultSetings,
+        createdAt: new Date(),
       };
       user = await userApi.addUser(newUser);
     }

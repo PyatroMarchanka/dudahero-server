@@ -26,6 +26,8 @@ const songSchema: Schema = new Schema<ISong>({
   transcribedBy: { type: String, required: false },
   lyrycs: { type: String, required: false },
   stats: { type: statsSchema, required: false },
+  createdAt: { type: Date, required: true, default: Date.now },
+  updatedAt: { type: Date, required: true, default: Date.now },
 });
 
 export const SongModel = model("songs", songSchema, "songs");

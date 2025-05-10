@@ -34,6 +34,7 @@ export function useGoogleStrategy() {
               email: profile._json.email!,
               picture: profile._json.picture,
               settings: defaultSetings,
+              createdAt: new Date(),
             };
             user = await userApi.addUser(newUser);
             done(null, user);
