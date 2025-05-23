@@ -36,10 +36,19 @@ authRouter.post("/google-auth", async (req, res) => {
     }
 
     const token = jwt.sign({ user: req.user }, ENV.JWT_SECRET || "");
+
+    // 20 days
+    const time = 1000 * 60 * 60 * 24 * 20;
     res
       .status(200)
-      .cookie("jwtToken", token, { httpOnly })
-      .cookie("userId", (user as any)._id.toString(), { httpOnly })
+      .cookie("jwtToken", token, {
+        httpOnly,
+        expires: new Date(Date.now() + time),
+      })
+      .cookie("userId", (user as any)._id.toString(), {
+        httpOnly,
+        expires: new Date(Date.now() + time),
+      })
       .json({ user });
   } catch (err) {
     res.status(400).json({ err });
