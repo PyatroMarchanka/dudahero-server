@@ -38,13 +38,13 @@ adminRouter.put("/song/:id", async (req, res) => {
       "links",
       "lyrycs",
       "stats",
+      "createdAt",
+      "updatedAt",
     ];
     const updates = Object.keys(req.body);
-    console.log("updates", updates);
     const unvalidUpdates = updates.filter(
       (update) => !allowedUpdates.includes(update)
     );
-
     if (unvalidUpdates.length !== 0) {
       return res.status(400).send({
         error: `Invalid updates!, valid are: ` + allowedUpdates.join(", "),
