@@ -22,7 +22,7 @@ jobs:
             cd /dudahero/dudahero-server
             docker-compose down
             rm -vrf .env
-            rm -rf dist
+            git stash
             git pull origin main
             git log | head -n 10
             echo "MONGO_DB_URL=${{ secrets.MONGO_DB_URL }}" > .env
