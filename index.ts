@@ -19,8 +19,9 @@ import { logRoutes } from "./src/utils/logRoutes";
 
 const app = express();
 const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
-const host =
-  process.env.BACKEND_HOST || (ENV.IS_DEV ? "localhost" : "127.0.0.1");
+// In Docker, listen on 0.0.0.0 to accept connections from any interface
+// BACKEND_HOST should only be used for port mapping in docker-compose, not for binding
+const host = ENV.IS_DEV ? "localhost" : "0.0.0.0";
 const frontendUrl = ENV.IS_DEV ? "http://localhost:3000" : ENV.FRONTEND_URL;
 // Log HTTP requests
 app.use(
