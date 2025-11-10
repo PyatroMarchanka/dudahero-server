@@ -106,7 +106,7 @@ app.use("/v1/playlists", playlistRouter);
 app.use("/v1/blog", blogRouter);
 
 
-app.get("/v1/songs", async (req, res) => {
+app.get("/v1/songs2", async (req, res) => {
   try {
     const songs = await songApi.getAllSongs();
     res.status(200).send(songs);
