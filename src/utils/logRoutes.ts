@@ -32,7 +32,7 @@ export const logRoutes = (app: express.Application) => {
                 method.toUpperCase()
               ),
             };
-
+            console.log(route);
             logger.warn(`${route.path} ${route.methods}`);
           }
         });
