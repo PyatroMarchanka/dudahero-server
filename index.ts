@@ -16,7 +16,6 @@ import { adminRouter } from "./src/routers/admin.router";
 import { playlistRouter } from "./src/routers/playlists.router";
 import blogRouter from "./src/routers/blog.router";
 import { logRoutes } from "./src/utils/logRoutes";
-import { songApi } from "./src/mongo/api/songs";
 
 const app = express();
 const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
@@ -68,13 +67,6 @@ app.options("*", (req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  if (ENV.IS_DEV) {
-    res.header("Access-Control-Allow-Origin", frontendUrl);
-    res.header("Access-Control-Allow-Credentials", "true");
-  } else if (ENV.FRONTEND_URL) {
-    res.header("Access-Control-Allow-Origin", ENV.FRONTEND_URL);
-    res.header("Access-Control-Allow-Credentials", "true");
-  }
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header(
     "Access-Control-Allow-Headers",
@@ -105,21 +97,9 @@ app.use("/v1/admin", adminRouter);
 app.use("/v1/playlists", playlistRouter);
 app.use("/v1/blog", blogRouter);
 
-
-app.get("/v1/songs2", async (req, res) => {
-  try {
-    const songs = await songApi.getAllSongs();
-    res.status(200).send(songs);
-  } catch (error) {
-    logger.info("Error fetching songs:", error);
-    res.status(403).send(error);
-  }
-});
-
 app.get("/v1/profile", async (req, res) => {
   try {
-    // jwtAuth(req);
-    console.log("req.cookies", req.cookies);
+    jwtAuth(req);
     const userId = req.cookies.userId;
     const user = await userApi.getUserById(userId!);
     res.send(user);
