@@ -45,21 +45,18 @@ app.options("*", (req, res, next) => {
     console.log("Access-Control-Allow-Origin", ENV.IS_DEV);
     res.header("Access-Control-Allow-Origin", frontendUrl);
     res.header("Access-Control-Allow-Credentials", "true");
-    res.header(
-      "Access-Control-Allow-Methods",
-      "GET, POST, PUT, DELETE, OPTIONS"
-    );
-    res.header(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, userId"
-    );
-  } else {
-    res.header(
-      "Access-Control-Allow-Methods",
-      "GET, POST, PUT, DELETE, OPTIONS"
-    );
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  } else if (ENV.FRONTEND_URL) {
+    res.header("Access-Control-Allow-Origin", ENV.FRONTEND_URL);
+    res.header("Access-Control-Allow-Credentials", "true");
   }
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, userId"
+  );
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
@@ -68,6 +65,14 @@ app.options("*", (req, res, next) => {
 });
 
 app.use((req, res, next) => {
+  // Set CORS headers for all requests
+  if (ENV.IS_DEV) {
+    res.header("Access-Control-Allow-Origin", frontendUrl);
+    res.header("Access-Control-Allow-Credentials", "true");
+  } else if (ENV.FRONTEND_URL) {
+    res.header("Access-Control-Allow-Origin", ENV.FRONTEND_URL);
+    res.header("Access-Control-Allow-Credentials", "true");
+  }
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header(
     "Access-Control-Allow-Headers",
@@ -84,6 +89,14 @@ if (ENV.IS_DEV) {
   app.use(
     cors({
       origin: frontendUrl,
+      credentials: true,
+    } as CorsOptions)
+  );
+} else if (ENV.FRONTEND_URL) {
+  // Add CORS for production as well
+  app.use(
+    cors({
+      origin: ENV.FRONTEND_URL,
       credentials: true,
     } as CorsOptions)
   );
