@@ -16,6 +16,7 @@ import { adminRouter } from "./src/routers/admin.router";
 import { playlistRouter } from "./src/routers/playlists.router";
 import blogRouter from "./src/routers/blog.router";
 import { logRoutes } from "./src/utils/logRoutes";
+import { songApi } from "./src/mongo/api/songs";
 
 const app = express();
 const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
@@ -103,6 +104,17 @@ app.use("/v1/songs", songRouter);
 app.use("/v1/admin", adminRouter);
 app.use("/v1/playlists", playlistRouter);
 app.use("/v1/blog", blogRouter);
+
+
+app.get("/v1/songs", async (req, res) => {
+  try {
+    const songs = await songApi.getAllSongs();
+    res.status(200).send(songs);
+  } catch (error) {
+    logger.info("Error fetching songs:", error);
+    res.status(403).send(error);
+  }
+});
 
 app.get("/v1/profile", async (req, res) => {
   try {
