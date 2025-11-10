@@ -19,7 +19,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            cd /dudahero/api
+            cd /dudahero/dudahero-server
             docker-compose down
             rm -vrf .env
             git pull origin main
