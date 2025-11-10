@@ -118,7 +118,8 @@ app.get("/v1/songs2", async (req, res) => {
 
 app.get("/v1/profile", async (req, res) => {
   try {
-    jwtAuth(req);
+    // jwtAuth(req);
+    console.log("req.cookies", req.cookies);
     const userId = req.cookies.userId;
     const user = await userApi.getUserById(userId!);
     res.send(user);
