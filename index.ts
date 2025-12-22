@@ -15,7 +15,7 @@ import cookieParser from "cookie-parser";
 import { adminRouter } from "./src/routers/admin.router";
 import { playlistRouter } from "./src/routers/playlists.router";
 import blogRouter from "./src/routers/blog.router";
-import { logRoutes } from "./src/utils/logRoutes";
+import { logRoutes } from "./src/utils/logRoutes"
 
 const app = express();
 const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
@@ -39,6 +39,7 @@ app.use(
     saveUninitialized: true,
   })
 );
+console.log('test comment')
 
 app.options("*", (req, res, next) => {
   if (ENV.IS_DEV) {
