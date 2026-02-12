@@ -14,7 +14,7 @@ import { songRouter } from "./src/routers/song.router";
 import cookieParser from "cookie-parser";
 import { adminRouter } from "./src/routers/admin.router";
 import { playlistRouter } from "./src/routers/playlists.router";
-import articleRouter from "./src/routers/blog.router";
+import articleRouter from "./src/routers/article.router";
 import categoriesRouter from "./src/routers/categories.router";
 import { logRoutes } from "./src/utils/logRoutes";
 import { initRedisClient } from "./src/mongo/redis";
