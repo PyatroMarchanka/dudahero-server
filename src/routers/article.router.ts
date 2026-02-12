@@ -1,4 +1,4 @@
-import { Article } from '../mongo/schemas/article';
+import { Article } from "../mongo/schemas/article";
 import { Router } from "express";
 import { ObjectId } from "mongodb";
 import { Article as ArticleType, ArticlePreview } from "../interfaces/articles";
@@ -20,10 +20,10 @@ router.post("/", async (req, res) => {
     }
     const article = new Article(req.body);
     const savedArticle = await article.save();
-    
+
     // Invalidate article preview caches
     await cacheInvalidate("articles:previews:*");
-    
+
     res.status(201).json(savedArticle);
   } catch (error) {
     res.status(400).json({ error: (error as Error).message });
@@ -38,6 +38,19 @@ router.get("/", async (req, res) => {
 
     const previews = await articlesApi.getArticlePreviewsByFilter(language, categoryId);
     res.json(previews);
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+// Get all articles (full)
+router.get("/full", async (req, res) => {
+  try {
+    const language = (req.query.language as string) || "be"; // Default to Belarusian
+    const categoryId = req.query.categoryId as string | undefined;
+
+    const articles = await articlesApi.getFullArticlesByFilter(language, categoryId);
+    res.json(articles);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }
@@ -69,7 +82,7 @@ router.put("/:id", async (req, res) => {
     const updatedPost = await Article.findByIdAndUpdate(
       req.params.id,
       { ...req.body, updatedAt: new Date().toISOString() },
-      { new: true }
+      { new: true },
     );
     if (!updatedPost) {
       return res.status(404).json({ error: "Blog post not found" });
@@ -78,7 +91,7 @@ router.put("/:id", async (req, res) => {
     // Invalidate article preview and slug caches
     await cacheInvalidate("articles:previews:*");
     await cacheInvalidate("articles:slug:*");
-    
+
     res.json(updatedPost);
   } catch (error) {
     res.status(400).json({ error: (error as Error).message });
@@ -96,7 +109,7 @@ router.delete("/:id", async (req, res) => {
     // Invalidate article preview and slug caches
     await cacheInvalidate("articles:previews:*");
     await cacheInvalidate("articles:slug:*");
-    
+
     res.json({ message: "Blog post deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });

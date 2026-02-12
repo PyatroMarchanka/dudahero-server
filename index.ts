@@ -7,7 +7,7 @@ import { ENV } from "./config";
 import { userApi } from "./src/mongo/api/user";
 import cors, { CorsOptions } from "cors";
 import bodyParser from "body-parser";
-import { jwtAuth } from "./src/middleware/jwtAuth";
+import { jwtAuth } from "./src/middleware/jwtAuth"; 
 import morgan from "morgan";
 import { logger } from "./src/utils/logger";
 import { songRouter } from "./src/routers/song.router";
