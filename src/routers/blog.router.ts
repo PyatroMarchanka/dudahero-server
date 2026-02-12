@@ -40,7 +40,6 @@ router.get("/", async (req, res) => {
       model: "users",
       select: "name picture",
     });
-    console.log(posts);
     const previews = posts.map((post) => {
       const defaultTranslation = post.translations[language as string];
 
@@ -66,7 +65,6 @@ router.get("/", async (req, res) => {
 // Get a single blog post by slug
 router.get("/:slug", async (req, res) => {
   try {
-    console.log(req.params.slug);
     const post = await Article.findOne({ slug: req.params.slug }).populate({
       path: "author",
       model: "users",

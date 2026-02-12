@@ -40,11 +40,9 @@ app.use(
     saveUninitialized: true,
   })
 );
-console.log('test comment')
 
 app.options("*", (req, res, next) => {
   if (ENV.IS_DEV) {
-    console.log("Access-Control-Allow-Origin", ENV.IS_DEV);
     res.header("Access-Control-Allow-Origin", frontendUrl);
     res.header("Access-Control-Allow-Credentials", "true");
   } else if (ENV.FRONTEND_URL) {

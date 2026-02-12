@@ -63,7 +63,6 @@ songRouter.get("/short/names", async (req, res) => {
 
 songRouter.put("/plays/:id", async (req, res) => {
   try {
-    console.log("song", req.params.id);
     const song = await SongModel.findOneAndUpdate(
       { _id: new mongoose.Types.ObjectId(req.params.id) },
       { $inc: { "stats.views": 1 } },
