@@ -2,6 +2,8 @@ import express from "express";
 import { SongModel } from "../mongo/schemas/song";
 import setupMongooseConnection from "../mongo/connect";
 import mongoose from "mongoose";
+import { songApi } from "../mongo/api/songs";
+import { cacheInvalidate } from "../utils/cache";
 
 export const songRouter = express.Router();
 
@@ -11,7 +13,7 @@ setupMongooseConnection();
 // Get all songs
 songRouter.get("/", async (req, res) => {
   try {
-    const songs = await SongModel.find({});
+    const songs = await songApi.getAllSongs();
     res.status(200).send(songs);
   } catch (error) {
     res.status(500).send(error);
@@ -21,7 +23,7 @@ songRouter.get("/", async (req, res) => {
 // Get a song by ID
 songRouter.get("/:id", async (req, res) => {
   try {
-    const song = await SongModel.findById(req.params.id);
+    const song = await songApi.getSongById(req.params.id);
     if (!song) {
       return res
         .status(404)
@@ -51,10 +53,7 @@ songRouter.get("/search/:substring", async (req, res) => {
 // Get all song names and URLs
 songRouter.get("/short/names", async (req, res) => {
   try {
-    const songs = await SongModel.find(
-      {},
-      "name type bagpipesToPlay id timeSignature labels"
-    );
+    const songs = await songApi.getSongShortNames();
     res.status(200).send(songs);
   } catch (error) {
     res.status(500).send(error);
@@ -74,6 +73,11 @@ songRouter.put("/plays/:id", async (req, res) => {
         .status(404)
         .send({ error: `Song not found: id =  ${req.params.id}` });
     }
+
+    // Invalidate top plays cache only
+    await cacheInvalidate("songs:top:plays");
+    await cacheInvalidate(`songs:${req.params.id}`);
+
     res.status(200).send(song);
   } catch (error) {
     console.log(error);
@@ -86,10 +90,7 @@ songRouter.get("/top/plays", async (req, res) => {
   try {
     const query = req.query;
     const limit = query.limit ? parseInt(query.limit as string) : 10;
-    const topSongs = await SongModel.find({})
-      .sort({ "stats.views": -1 })
-      .limit(limit)
-      .select("name type bagpipesToPlay id timeSignature labels stats.views");
+    const topSongs = await songApi.getTopByPlays(limit);
     
     res.status(200).send(topSongs);
   } catch (error) {
@@ -104,10 +105,7 @@ songRouter.get("/top/recent", async (req, res) => {
     const query = req.query;
     const limit = query.limit ? parseInt(query.limit as string) : 10;
     
-    const recentSongs = await SongModel.find({})
-      .sort({ _id: -1 }) // Sort by creation date (newest first)
-      .limit(limit)
-      .select("name type bagpipesToPlay id timeSignature labels stats.views");
+    const recentSongs = await songApi.getTopRecent(limit);
     
     res.status(200).send(recentSongs);
   } catch (error) {

@@ -16,14 +16,21 @@ import { adminRouter } from "./src/routers/admin.router";
 import { playlistRouter } from "./src/routers/playlists.router";
 import articleRouter from "./src/routers/blog.router";
 import categoriesRouter from "./src/routers/categories.router";
-import { logRoutes } from "./src/utils/logRoutes"
+import { logRoutes } from "./src/utils/logRoutes";
+import { initRedisClient } from "./src/mongo/redis";
+
+// Initialize Redis client
+initRedisClient().catch((error) => {
+  logger.warn("Redis initialization failed, caching disabled:", error);
+});
 
 const app = express();
 const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
 // In Docker, listen on 0.0.0.0 to accept connections from any interface
-// BACKEND_HOST should only be used for port mapping in docker-compose, not for binding
-const host = ENV.IS_DEV ? "localhost" : "0.0.0.0";
-const frontendUrl = ENV.IS_DEV ? "http://localhost:3000" : ENV.FRONTEND_URL;
+// Only bind to localhost if explicitly set to "true"
+const isDev = process.env.IS_DEV === "true";
+const host = isDev ? "localhost" : "0.0.0.0";
+const frontendUrl = isDev ? "http://localhost:3000" : ENV.FRONTEND_URL;
 // Log HTTP requests
 app.use(
   morgan("combined", {

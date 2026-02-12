@@ -15,5 +15,6 @@ export const ENV = {
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   SESSION_SECRET: process.env.SESSION_SECRET,
   FRONTEND_URL: process.env.FRONTEND_URL!,
-  IS_DEV: process.env.IS_DEV
+  IS_DEV: process.env.IS_DEV,
+  REDIS_URL: process.env.REDIS_URL || "redis://localhost:6379"
 };
