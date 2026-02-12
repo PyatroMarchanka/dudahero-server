@@ -1,7 +1,7 @@
+import { Article } from '../mongo/schemas/article';
 import { Router } from "express";
 import { ObjectId } from "mongodb";
-import BlogPost from "../mongo/schemas/blog";
-import { BlogPostPreview } from "../interfaces/blog";
+import { Article as ArticleType, ArticlePreview } from "../interfaces/articles";
 import { jwtAuth } from "../middleware/jwtAuth";
 import { userApi } from "../mongo/api/user";
 
@@ -16,25 +16,32 @@ router.post("/", async (req, res) => {
     if (!user) {
       return res.status(401).json({ error: "Unauthorized" });
     }
-    const blogPost = new BlogPost(req.body);
-    const savedPost = await blogPost.save();
-    res.status(201).json(savedPost);
+    const article = new Article(req.body);
+    const savedArticle = await article.save();
+    res.status(201).json(savedArticle);
   } catch (error) {
     res.status(400).json({ error: (error as Error).message });
   }
 });
 
-// Get all blog posts (preview)
+// Get all articles (preview)
 router.get("/", async (req, res) => {
   try {
     const language = req.query.language;
-    const posts = await BlogPost.find().populate({
+    const categoryId = req.query.categoryId;
+
+    const query: any = {};
+    if (categoryId) {
+      query.categoryId = categoryId;
+    }
+
+    const posts = await Article.find<ArticleType>(query).populate({
       path: "author",
       model: "users",
       select: "name picture",
     });
     console.log(posts);
-    const previews: BlogPostPreview[] = posts.map((post) => {
+    const previews = posts.map((post) => {
       const defaultTranslation = post.translations[language as string];
 
       return {
@@ -60,11 +67,11 @@ router.get("/", async (req, res) => {
 router.get("/:slug", async (req, res) => {
   try {
     console.log(req.params.slug);
-    const post = await BlogPost.findOne({ slug: req.params.slug }).populate({
+    const post = await Article.findOne({ slug: req.params.slug }).populate({
       path: "author",
       model: "users",
       select: "name picture",
-    });
+    })
 
     if (!post) {
       return res.status(404).json({ error: "Blog post not found" });
@@ -77,14 +84,14 @@ router.get("/:slug", async (req, res) => {
 
 //Get posts by author
 router.get("/author/:author", async (req, res) => {
-  const posts = await BlogPost.find({ author: new ObjectId(req.params.author) });
+  const posts = await Article.find({ author: new ObjectId(req.params.author) });
   res.json(posts);
 });
 
 // Update a blog post
 router.put("/:id", async (req, res) => {
   try {
-    const updatedPost = await BlogPost.findByIdAndUpdate(
+    const updatedPost = await Article.findByIdAndUpdate(
       req.params.id,
       { ...req.body, updatedAt: new Date().toISOString() },
       { new: true }
@@ -101,7 +108,7 @@ router.put("/:id", async (req, res) => {
 // Delete a blog post
 router.delete("/:id", async (req, res) => {
   try {
-    const deletedPost = await BlogPost.findByIdAndDelete(req.params.id);
+    const deletedPost = await Article.findByIdAndDelete(req.params.id);
     if (!deletedPost) {
       return res.status(404).json({ error: "Blog post not found" });
     }

@@ -1,9 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { BlogPost } from '../../interfaces/blog';
+import { Article as ArticleType } from '../../interfaces/articles';
 
-export interface IBlogPost extends Omit<BlogPost, 'id'>, Document {}
-
-const BlogPostSchema: Schema = new Schema({
+const ArticleSchema: Schema = new Schema({
   slug: { type: String, required: true, unique: true },
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
   createdAt: { type: Date, required: true },
@@ -14,9 +12,10 @@ const BlogPostSchema: Schema = new Schema({
     type: Object,
     required: true
   },
-  defaultLanguage: { type: String, required: false }
+  defaultLanguage: { type: String, required: false },
+  category: { type: String, required: false },
 }, {
   timestamps: true
 });
 
-export default mongoose.model<IBlogPost>('BlogPost', BlogPostSchema); 
+export const Article = mongoose.model<ArticleType>('article', ArticleSchema); 

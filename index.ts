@@ -14,7 +14,8 @@ import { songRouter } from "./src/routers/song.router";
 import cookieParser from "cookie-parser";
 import { adminRouter } from "./src/routers/admin.router";
 import { playlistRouter } from "./src/routers/playlists.router";
-import blogRouter from "./src/routers/blog.router";
+import articleRouter from "./src/routers/blog.router";
+import categoriesRouter from "./src/routers/categories.router";
 import { logRoutes } from "./src/utils/logRoutes"
 
 const app = express();
@@ -110,7 +111,8 @@ app.use("/v1/auth", authRouter);
 app.use("/v1/songs", songRouter);
 app.use("/v1/admin", adminRouter);
 app.use("/v1/playlists", playlistRouter);
-app.use("/v1/blog", blogRouter);
+app.use("/v1/articles", articleRouter);
+app.use("/v1/categories", categoriesRouter);
 
 app.get("/v1/profile", async (req, res) => {
   try {
