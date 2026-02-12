@@ -37,27 +37,33 @@ const getArticlePreviewsByFilter = async (
     : `articles:previews:${language}`;
 
   return cacheGet(cacheKey, async () => {
-    const filter = categoryId ? { category: categoryId } : {};
-    const articles = await Article.find<ArticleType>(filter)
-      .select(
-        `_id slug featuredImage translations.${language}.title category translations.${language}.tags translations.${language}.excerpt publishedAt`,
-      )
-      .populate({ path: "author", model: "user", select: "picture name" });
+    const query: any = {};
+    if (categoryId) {
+      query.categoryId = categoryId;
+    }
 
-    return articles.map((article) => {
-      const { slug, category, featuredImage, _id, publishedAt, author } = article;
+    const posts = await Article.find<ArticleType>(query).populate({
+      path: "author",
+      model: "users",
+      select: "name picture",
+    });
+
+    return posts.map((post) => {
+      const defaultTranslation = post.translations[language as string];
 
       return {
-        _id,
-        slug,
-        category,
-        featuredImage,
-        title: article.translations[language]?.title,
-        excerpt: article.translations[language]?.excerpt,
-        tags: article.translations[language]?.tags,
-        author,
-        publishedAt,
-      };
+        _id: post._id.toString(),
+        slug: post.slug,
+        category: post.category,
+        title: defaultTranslation?.title || "",
+        excerpt: defaultTranslation?.excerpt || "",
+        author: post.author,
+        createdAt: (post as any).createdAt,
+        publishedAt: post.publishedAt,
+        tags: defaultTranslation?.tags || [],
+        featuredImage: post.featuredImage,
+        availableLanguages: Object.keys(post.translations),
+      } as ArticlePreview;
     });
   });
 };
