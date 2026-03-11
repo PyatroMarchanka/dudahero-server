@@ -22,7 +22,7 @@ adminRouter.post("/song", async (req, res) => {
 adminRouter.put("/song/:id", async (req, res) => {
   try {
     await adminJwtAuth(req);
-
+     console.log('req.body', req.body);
     const allowedUpdates = [
       "_id",
       "labels",
@@ -40,11 +40,13 @@ adminRouter.put("/song/:id", async (req, res) => {
       "stats",
       "createdAt",
       "updatedAt",
+      '__v',
     ];
     const updates = Object.keys(req.body);
     const unvalidUpdates = updates.filter(
       (update) => !allowedUpdates.includes(update)
     );
+    console.log('unvalidUpdates', unvalidUpdates);
     if (unvalidUpdates.length !== 0) {
       return res.status(400).send({
         error: `Invalid updates!, valid are: ` + allowedUpdates.join(", "),
