@@ -1,8 +1,30 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: dudahero_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   dudahero_server:
     build: .
     ports:
       - $BACKEND_HOST:$BACKEND_PORT:$BACKEND_PORT
     env_file:
       - .env
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - IS_DEV=false
+    depends_on:
+      redis:
+        condition: service_healthy
     command: npm start
+
+volumes:
+  redis_data:
