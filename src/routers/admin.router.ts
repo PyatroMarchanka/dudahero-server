@@ -2,6 +2,7 @@ import express from "express";
 import { SongModel } from "../mongo/schemas/song";
 import mongoose from "mongoose";
 import { adminJwtAuth } from "../middleware/jwtAuth";
+import { cacheInvalidate } from "../utils/cache";
 
 export const adminRouter = express.Router();
 
@@ -22,7 +23,7 @@ adminRouter.post("/song", async (req, res) => {
 adminRouter.put("/song/:id", async (req, res) => {
   try {
     await adminJwtAuth(req);
-     console.log('req.body', req.body);
+    console.log("req.body", req.body);
     const allowedUpdates = [
       "_id",
       "labels",
@@ -40,13 +41,11 @@ adminRouter.put("/song/:id", async (req, res) => {
       "stats",
       "createdAt",
       "updatedAt",
-      '__v',
+      "__v",
     ];
     const updates = Object.keys(req.body);
-    const unvalidUpdates = updates.filter(
-      (update) => !allowedUpdates.includes(update)
-    );
-    console.log('unvalidUpdates', unvalidUpdates);
+    const unvalidUpdates = updates.filter((update) => !allowedUpdates.includes(update));
+
     if (unvalidUpdates.length !== 0) {
       return res.status(400).send({
         error: `Invalid updates!, valid are: ` + allowedUpdates.join(", "),
@@ -56,14 +55,13 @@ adminRouter.put("/song/:id", async (req, res) => {
     const song = await SongModel.findOneAndUpdate(
       { _id: new mongoose.Types.ObjectId(req.params.id) },
       { $set: req.body },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!song) {
-      return res
-        .status(404)
-        .send({ error: `Song not found: id =  ${req.params.id}` });
+      return res.status(404).send({ error: `Song not found: id =  ${req.params.id}` });
     }
+    cacheInvalidate(`songs:${req.params.id}`);
     res.status(200).send(song);
   } catch (error) {
     console.log(error);
@@ -77,10 +75,9 @@ adminRouter.delete("/song/:id", async (req, res) => {
     await adminJwtAuth(req);
     const song = await SongModel.findByIdAndDelete(req.params.id);
     if (!song) {
-      return res
-        .status(404)
-        .send({ error: `Song not found: id =  ${req.params.id}` });
+      return res.status(404).send({ error: `Song not found: id =  ${req.params.id}` });
     }
+    cacheInvalidate(`songs:${req.params.id}`);
     res.status(200).send(song);
   } catch (error) {
     console.log(error);
