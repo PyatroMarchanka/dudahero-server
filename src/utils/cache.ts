@@ -24,7 +24,6 @@ export const cacheGet = async <T>(
     const cached = await client.get(key);
     if (cached) {
       try {
-        console.log('return from cache:', key, cached);
         return JSON.parse(cached) as T;
       } catch (error) {
         console.warn(`Failed to parse cached value for key ${key}:`, error);

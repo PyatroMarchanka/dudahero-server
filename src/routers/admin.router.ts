@@ -23,7 +23,6 @@ adminRouter.post("/song", async (req, res) => {
 adminRouter.put("/song/:id", async (req, res) => {
   try {
     await adminJwtAuth(req);
-    console.log("req.body", req.body);
     const allowedUpdates = [
       "_id",
       "labels",
