@@ -15,6 +15,7 @@ export const authRouter: Router = express.Router();
 
 authRouter.post("/google-auth", async (req, res) => {
   const { credential, client_id } = req.body;
+  console.log('req.body', req.body);
   try {
     const ticket = await client.verifyIdToken({
       idToken: credential,

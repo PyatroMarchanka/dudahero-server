@@ -50,7 +50,7 @@ adminRouter.put("/song/:id", async (req, res) => {
         error: `Invalid updates!, valid are: ` + allowedUpdates.join(", "),
       });
     }
-
+    console.log('req.body', req.body);
     const song = await SongModel.findOneAndUpdate(
       { _id: new mongoose.Types.ObjectId(req.params.id) },
       { $set: req.body },

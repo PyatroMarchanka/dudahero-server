@@ -16,6 +16,7 @@ const statsSchema = new Schema<IStats>({
 const songSchema: Schema = new Schema<ISong>({
   labels: { type: [String], required: true },
   timeSignature: { type: String, required: true },
+  originalTempo: { type: Number, required: true },
   name: { type: String, required: false },
   pathName: { type: String, required: true },
   bagpipesToPlay: { type: [String], required: true },
