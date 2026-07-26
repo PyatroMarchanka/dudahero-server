@@ -54,6 +54,7 @@ const addSong = async (song: ISong) => {
   
   // Invalidate relevant caches
   await cacheInvalidate("songs:all");
+  await cacheInvalidate("songs:top:*");
   await cacheInvalidate("songs:shortnames");
 
   return result;
