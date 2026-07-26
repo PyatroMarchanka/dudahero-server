@@ -1,23 +1,31 @@
 services:
-  mongo:
-    image: mongo:6.0
-    container_name: dudahero_mongo
+  redis:
+    image: redis:7-alpine
+    container_name: dudahero_redis
     ports:
-      - "27017:27017"
+      - "6379:6379"
     volumes:
-      - mongo_data:/data/db
+      - redis_data:/data
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand({ ping: 1 })"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   dudahero_server:
+    build: .
+    ports:
+      - $BACKEND_HOST:$BACKEND_PORT:$BACKEND_PORT
+    env_file:
+      - .env
     environment:
-      - MONGO_DB_URL=mongodb://mongo:27017
+      - REDIS_URL=redis://redis:6379
+      - MONGO_DB_URL=${MONGO_DB_URL}
+      - IS_DEV=false
     depends_on:
-      mongo:
+      redis:
         condition: service_healthy
+    command: npm start
 
 volumes:
-  mongo_data:
+  redis_data:
