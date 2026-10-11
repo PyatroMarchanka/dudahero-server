@@ -22,6 +22,8 @@ export interface UserSettings {
   isPreclick: boolean;
   language: Languages;
   transpose: number;
+  // Tonality of the whistle on the flute site, kept apart from the bagpipe `transpose`
+  fluteTranspose?: number;
   lastSongUrl?: string;
   view: Views;
 }

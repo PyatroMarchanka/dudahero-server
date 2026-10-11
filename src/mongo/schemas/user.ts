@@ -7,6 +7,7 @@ const userSettingsSchema: Schema = new Schema<UserSettings>({
   isPreclick: { type: Boolean, required: true },
   language: { type: String, required: true },
   transpose: { type: Number, required: true },
+  fluteTranspose: { type: Number, required: false },
   lastSongUrl: { type: String, required: false },
   view: { type: String, required: true },
 });
