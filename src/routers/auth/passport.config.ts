@@ -2,7 +2,7 @@ import passport from "passport";
 import passportGoogle from "passport-google-oauth20";
 import { userApi } from "../../mongo/api/user";
 import { defaultSetings, User } from "../../interfaces/user";
-import { ENV } from "../../../config";
+import { ENV, GOOGLE_CLIENT_IDS } from "../../../config";
 import { logger } from "../../utils/logger";
 
 const GoogleStrategy = passportGoogle.Strategy;
@@ -11,7 +11,7 @@ export function useGoogleStrategy() {
   passport.use(
     new GoogleStrategy(
       {
-        clientID: ENV.GOOGLE_CLIENT_ID || "",
+        clientID: GOOGLE_CLIENT_IDS[0] || "",
         clientSecret: ENV.GOOGLE_CLIENT_SECRET || "",
         callbackURL: "/v1/auth/google/callback",
       },

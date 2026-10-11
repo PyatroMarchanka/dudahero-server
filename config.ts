@@ -18,3 +18,18 @@ export const ENV = {
   IS_DEV: process.env.IS_DEV,
   REDIS_URL: process.env.REDIS_URL || "redis://localhost:6379"
 };
+
+const splitList = (value?: string) =>
+  (value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+// FRONTEND_URL may list several origins, e.g. "https://dudahero.org,https://release.dudahero.org".
+// The first one is the main site, used for redirects.
+export const FRONTEND_URLS = splitList(ENV.FRONTEND_URL);
+export const MAIN_FRONTEND_URL = FRONTEND_URLS[0] || "";
+
+// GOOGLE_CLIENT_ID may list several OAuth client IDs whose ID tokens we accept.
+// The first one (with GOOGLE_CLIENT_SECRET) is used by the passport redirect flow.
+export const GOOGLE_CLIENT_IDS = splitList(ENV.GOOGLE_CLIENT_ID);
