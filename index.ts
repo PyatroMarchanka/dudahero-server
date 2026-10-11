@@ -3,7 +3,7 @@ import session from "express-session";
 import passport from "passport";
 import { authRouter } from "./src/routers/auth/auth.router";
 import { useGoogleStrategy } from "./src/routers/auth/passport.config";
-import { ENV } from "./config";
+import { ENV, FRONTEND_URLS } from "./config";
 import { userApi } from "./src/mongo/api/user";
 import cors, { CorsOptions } from "cors";
 import bodyParser from "body-parser";
@@ -30,7 +30,16 @@ const port = parseInt(process.env.BACKEND_PORT || "3000", 10);
 // Only bind to localhost if explicitly set to "true"
 const isDev = process.env.IS_DEV === "true";
 const host = isDev ? "localhost" : "0.0.0.0";
-const frontendUrl = isDev ? "http://localhost:3000" : ENV.FRONTEND_URL;
+const allowedOrigins = isDev ? ["http://localhost:3000"] : FRONTEND_URLS;
+
+const setCorsOrigin = (req: express.Request, res: express.Response) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header("Vary", "Origin");
+  }
+};
 // Log HTTP requests
 app.use(
   morgan("combined", {
@@ -49,13 +58,7 @@ app.use(
 );
 
 app.options("*", (req, res, next) => {
-  if (ENV.IS_DEV) {
-    res.header("Access-Control-Allow-Origin", frontendUrl);
-    res.header("Access-Control-Allow-Credentials", "true");
-  } else if (ENV.FRONTEND_URL) {
-    res.header("Access-Control-Allow-Origin", ENV.FRONTEND_URL);
-    res.header("Access-Control-Allow-Credentials", "true");
-  }
+  setCorsOrigin(req, res);
   res.header(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS"
@@ -73,13 +76,7 @@ app.options("*", (req, res, next) => {
 
 app.use((req, res, next) => {
   // Set CORS headers for all requests
-  if (ENV.IS_DEV) {
-    res.header("Access-Control-Allow-Origin", frontendUrl);
-    res.header("Access-Control-Allow-Credentials", "true");
-  } else if (ENV.FRONTEND_URL) {
-    res.header("Access-Control-Allow-Origin", ENV.FRONTEND_URL);
-    res.header("Access-Control-Allow-Credentials", "true");
-  }
+  setCorsOrigin(req, res);
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header(
     "Access-Control-Allow-Headers",
@@ -92,18 +89,10 @@ app.use((req, res, next) => {
   next();
 });
 
-if (ENV.IS_DEV) {
+if (allowedOrigins.length) {
   app.use(
     cors({
-      origin: frontendUrl,
-      credentials: true,
-    } as CorsOptions)
-  );
-} else if (ENV.FRONTEND_URL) {
-  // Add CORS for production as well
-  app.use(
-    cors({
-      origin: ENV.FRONTEND_URL,
+      origin: allowedOrigins,
       credentials: true,
     } as CorsOptions)
   );

@@ -1,7 +1,7 @@
 import express, { Router, Request, Response, NextFunction } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
-import { ENV } from "../../../config";
+import { ENV, GOOGLE_CLIENT_IDS, MAIN_FRONTEND_URL } from "../../../config";
 import { logger } from "../../utils/logger";
 import { userApi } from "../../mongo/api/user";
 import { defaultSetings, User } from "../../interfaces/user";
@@ -14,12 +14,12 @@ const httpOnly = !ENV.IS_DEV;
 export const authRouter: Router = express.Router();
 
 authRouter.post("/google-auth", async (req, res) => {
-  const { credential, client_id } = req.body;
-  console.log('req.body', req.body);
+  const { credential } = req.body;
   try {
+    // Only accept tokens issued for our own OAuth clients, not whatever client_id the request claims.
     const ticket = await client.verifyIdToken({
       idToken: credential,
-      audience: client_id,
+      audience: GOOGLE_CLIENT_IDS,
     });
     const payload = ticket.getPayload();
     let user = await userApi.getUserByEmail(payload.email);
@@ -128,7 +128,7 @@ authRouter.get(
         });
       }
 
-      res.redirect(ENV.FRONTEND_URL);
+      res.redirect(MAIN_FRONTEND_URL);
     } catch (error) {
       logger.info("Error during cookie setting or redirection", { error });
       res.status(500).send("Authentication error");
@@ -145,6 +145,6 @@ authRouter.get("/logout", (req: Request, res: Response, next: NextFunction) => {
 
     res.clearCookie("jwtToken");
     res.clearCookie("userId");
-    res.redirect(ENV.FRONTEND_URL);
+    res.redirect(MAIN_FRONTEND_URL);
   });
 });
