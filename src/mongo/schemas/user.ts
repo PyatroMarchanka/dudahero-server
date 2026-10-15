@@ -19,6 +19,7 @@ const userSchema = new Schema<User>({
   updatedAt: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
   isAdmin: { type: Boolean, required: false },
+  favoriteSongs: { type: [String], required: false, default: undefined },
 });
 
 export const UserModel = model("users", userSchema, "users");

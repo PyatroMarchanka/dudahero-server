@@ -9,6 +9,8 @@ export interface User {
   updatedAt?: Date;
   createdAt?: Date;
   isAdmin?: boolean;
+  // `id` strings of the songs the user marked as favorite
+  favoriteSongs?: string[];
 }
 
 export enum Views {
