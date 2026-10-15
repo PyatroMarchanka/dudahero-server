@@ -16,6 +16,7 @@ import { adminRouter } from "./src/routers/admin.router";
 import { playlistRouter } from "./src/routers/playlists.router";
 import articleRouter from "./src/routers/article.router";
 import categoriesRouter from "./src/routers/categories.router";
+import { favoritesRouter } from "./src/routers/favorites.router";
 import { logRoutes } from "./src/utils/logRoutes";
 import { initRedisClient } from "./src/mongo/redis";
 
@@ -107,6 +108,7 @@ app.use("/v1/admin", adminRouter);
 app.use("/v1/playlists", playlistRouter);
 app.use("/v1/articles", articleRouter);
 app.use("/v1/categories", categoriesRouter);
+app.use("/v1/favorites", favoritesRouter);
 
 app.get("/v1/profile", async (req, res) => {
   try {
