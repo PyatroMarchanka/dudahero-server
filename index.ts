@@ -17,12 +17,18 @@ import { playlistRouter } from "./src/routers/playlists.router";
 import articleRouter from "./src/routers/article.router";
 import categoriesRouter from "./src/routers/categories.router";
 import { favoritesRouter } from "./src/routers/favorites.router";
+import { updatesRouter } from "./src/routers/updates.router";
+import { appUpdatesApi } from "./src/mongo/api/appUpdates";
 import { logRoutes } from "./src/utils/logRoutes";
 import { initRedisClient } from "./src/mongo/redis";
 
 // Initialize Redis client
 initRedisClient().catch((error) => {
   logger.warn("Redis initialization failed, caching disabled:", error);
+});
+
+appUpdatesApi.seedUpdates().catch((error) => {
+  logger.warn("Seeding app updates failed:", error);
 });
 
 const app = express();
@@ -109,6 +115,7 @@ app.use("/v1/playlists", playlistRouter);
 app.use("/v1/articles", articleRouter);
 app.use("/v1/categories", categoriesRouter);
 app.use("/v1/favorites", favoritesRouter);
+app.use("/v1/updates", updatesRouter);
 
 app.get("/v1/profile", async (req, res) => {
   try {
