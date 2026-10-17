@@ -3,6 +3,7 @@ import { SongModel } from "../mongo/schemas/song";
 import mongoose from "mongoose";
 import { adminJwtAuth } from "../middleware/jwtAuth";
 import { cacheInvalidate } from "../utils/cache";
+import { appUpdatesApi } from "../mongo/api/appUpdates";
 
 export const adminRouter = express.Router();
 
@@ -78,6 +79,37 @@ adminRouter.delete("/song/:id", async (req, res) => {
     }
     cacheInvalidate(`songs:${req.params.id}`);
     res.status(200).send(song);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+});
+
+// Create or update an app update (matched by key)
+adminRouter.post("/update", async (req, res) => {
+  try {
+    await adminJwtAuth(req);
+    const { key, date, prNumbers, translations } = req.body;
+    if (!key || !date || !translations) {
+      return res.status(400).send({ error: "key, date and translations are required" });
+    }
+    const update = await appUpdatesApi.upsertUpdate({ key, date, prNumbers, translations });
+    res.status(201).send(update);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error);
+  }
+});
+
+// Delete an app update by key
+adminRouter.delete("/update/:key", async (req, res) => {
+  try {
+    await adminJwtAuth(req);
+    const update = await appUpdatesApi.deleteUpdate(req.params.key);
+    if (!update) {
+      return res.status(404).send({ error: `Update not found: key = ${req.params.key}` });
+    }
+    res.status(200).send(update);
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
