@@ -19,15 +19,10 @@ const validateMelody = (body: any): { title: string; abc: string } | string => {
   if (abc.length > MAX_ABC_LENGTH) {
     return `ABC notation is too large (max ${MAX_ABC_LENGTH} characters)`;
   }
-  if (!/^\s*K:/m.test(abc)) {
-    return "ABC notation needs a key line (K:)";
-  }
 
-  const titleFromAbc = abc.match(/^\s*T:(.*)$/m)?.[1];
-  const rawTitle = typeof body?.title === "string" && body.title.trim() ? body.title : titleFromAbc;
-  const title = (rawTitle || "").trim();
+  const title = typeof body?.title === "string" ? body.title.trim() : "";
   if (!title) {
-    return "A title is required (or a T: line in the ABC)";
+    return "A title is required";
   }
   if (title.length > MAX_TITLE_LENGTH) {
     return `Title is too long (max ${MAX_TITLE_LENGTH} characters)`;
