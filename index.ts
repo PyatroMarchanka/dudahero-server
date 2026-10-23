@@ -18,6 +18,7 @@ import articleRouter from "./src/routers/article.router";
 import categoriesRouter from "./src/routers/categories.router";
 import { favoritesRouter } from "./src/routers/favorites.router";
 import { updatesRouter } from "./src/routers/updates.router";
+import { melodiesRouter } from "./src/routers/melodies.router";
 import { appUpdatesApi } from "./src/mongo/api/appUpdates";
 import { logRoutes } from "./src/utils/logRoutes";
 import { initRedisClient } from "./src/mongo/redis";
@@ -116,6 +117,7 @@ app.use("/v1/articles", articleRouter);
 app.use("/v1/categories", categoriesRouter);
 app.use("/v1/favorites", favoritesRouter);
 app.use("/v1/updates", updatesRouter);
+app.use("/v1/melodies", melodiesRouter);
 
 app.get("/v1/profile", async (req, res) => {
   try {
