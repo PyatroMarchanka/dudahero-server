@@ -2,6 +2,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: dudahero_redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
@@ -25,6 +26,28 @@ services:
       redis:
         condition: service_healthy
     command: npm start
+    restart: unless-stopped
+    # Marks the container unhealthy when the process is alive but stops answering,
+    # so autoheal (below) can restart it. A crashed process is handled by `restart`.
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:' + (process.env.BACKEND_PORT || 3000) + '/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    labels:
+      - autoheal=true
+
+  # Restarts containers labelled autoheal=true when their healthcheck reports unhealthy.
+  autoheal:
+    image: willfarrell/autoheal:1.2.0
+    restart: unless-stopped
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=autoheal
+      - AUTOHEAL_INTERVAL=30
+      - AUTOHEAL_START_PERIOD=120
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   redis_data:
