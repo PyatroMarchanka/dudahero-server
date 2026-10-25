@@ -22,6 +22,7 @@ import { melodiesRouter } from "./src/routers/melodies.router";
 import { appUpdatesApi } from "./src/mongo/api/appUpdates";
 import { logRoutes } from "./src/utils/logRoutes";
 import { initRedisClient } from "./src/mongo/redis";
+import mongoose from "mongoose";
 
 // Initialize Redis client
 initRedisClient().catch((error) => {
@@ -48,6 +49,16 @@ const setCorsOrigin = (req: express.Request, res: express.Response) => {
     res.header("Vary", "Origin");
   }
 };
+// Liveness probe for the Docker healthcheck. Registered before morgan so the
+// probe every 30s does not flood the logs.
+app.get("/health", (req, res) => {
+  res.json({
+    status: "ok",
+    uptime: Math.round(process.uptime()),
+    mongo: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+  });
+});
+
 // Log HTTP requests
 app.use(
   morgan("combined", {
