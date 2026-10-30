@@ -11,6 +11,8 @@ export interface IMelodyRoll {
   ppq: number;
   bars: number;
   notes: [number, number, number][];
+  // Pitch class of the key's tonic (0 = C), written for an A instrument. Absent means A.
+  tonic?: number;
 }
 
 export type MelodyFormat = "abc" | "roll";

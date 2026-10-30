@@ -22,7 +22,7 @@ const validateRoll = (roll: any): IMelodyRoll | string => {
   if (!roll || typeof roll !== "object") {
     return "Melody notes are required";
   }
-  const { bagpipeType, timeSignature, bpm, ppq, bars, notes } = roll;
+  const { bagpipeType, timeSignature, bpm, ppq, bars, notes, tonic } = roll;
   if (roll.version !== 1) {
     return "Unknown melody version";
   }
@@ -34,6 +34,9 @@ const validateRoll = (roll: any): IMelodyRoll | string => {
   }
   if (!isInt(bpm, 20, 400) || !isInt(ppq, 24, 960) || !isInt(bars, 1, MAX_ROLL_BARS)) {
     return "Invalid tempo or length";
+  }
+  if (tonic !== undefined && !isInt(tonic, 0, 11)) {
+    return "Invalid key";
   }
   if (!Array.isArray(notes) || !notes.length) {
     return "Add at least one note";
@@ -62,6 +65,7 @@ const validateRoll = (roll: any): IMelodyRoll | string => {
     ppq,
     bars,
     notes: notes.map((note: number[]) => [note[0], note[1], note[2]] as [number, number, number]),
+    ...(tonic !== undefined && { tonic }),
   };
 };
 
