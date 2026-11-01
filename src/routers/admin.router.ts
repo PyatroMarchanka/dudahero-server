@@ -33,7 +33,7 @@ adminRouter.post("/song", async (req, res) => {
 adminRouter.get("/song", async (req, res) => {
   try {
     await adminJwtAuth(req);
-    res.status(200).send(await SongModel.find({}).select("-melody.roll -melody.abc"));
+    res.status(200).send(await SongModel.find({}).select({ "melody.roll": 0, "melody.abc": 0 }));
   } catch (error) {
     console.log(error);
     res.status(403).send({ error: (error as Error).message || "Admins only" });
