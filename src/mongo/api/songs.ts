@@ -6,8 +6,10 @@ import { cacheGet, cacheInvalidate } from "../../utils/cache";
 const getAllSongs = async () => {
   await setupMongooseConnection();
 
+  // The notes of songs stored in the database are left out (only their format
+  // stays): they are loaded one song at a time (getSongById), so the list stays small
   return cacheGet("songs:all", async () => {
-    return await SongModel.find({});
+    return await SongModel.find({}).select({ "melody.roll": 0, "melody.abc": 0 });
   });
 };
 

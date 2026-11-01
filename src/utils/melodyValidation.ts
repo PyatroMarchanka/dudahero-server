@@ -1,4 +1,5 @@
 import { IMelodyRoll } from "../interfaces/userMelody";
+import { ISongMelody } from "../interfaces/song";
 import { MelodyContent } from "../mongo/api/userMelodies";
 
 // Same cap the frontend's abcToMidi enforces
@@ -91,3 +92,25 @@ export const validateMelody = (body: any): MelodyContent | string => {
   return { title, format: "abc", abc };
 };
 
+
+// The notes stored in a catalog song (`melody`), from an admin's request: a
+// clean copy, or what is wrong with it.
+export const validateSongMelody = (melody: any): ISongMelody | string => {
+  if (!melody || typeof melody !== "object") {
+    return "Melody notes are required";
+  }
+  if (melody.format === "roll") {
+    const roll = validateRoll(melody.roll);
+    return typeof roll === "string" ? roll : { format: "roll", roll };
+  }
+  if (melody.format === "abc") {
+    if (typeof melody.abc !== "string" || !melody.abc.trim()) {
+      return "ABC notation is required";
+    }
+    if (melody.abc.length > MAX_ABC_LENGTH) {
+      return `ABC notation is too large (max ${MAX_ABC_LENGTH} characters)`;
+    }
+    return { format: "abc", abc: melody.abc };
+  }
+  return "Unknown melody format";
+};
