@@ -2,6 +2,9 @@ import { getRedisClient } from '../mongo/redis';
 
 const CACHE_TTL = 600; // 10 minutes in seconds
 
+// For keys that every write path clears explicitly: the time is only a safety net
+export const LONG_CACHE_TTL = 24 * 60 * 60;
+
 /**
  * Get a value from cache, or generate and cache it if not found
  * @param key Cache key
@@ -10,7 +13,8 @@ const CACHE_TTL = 600; // 10 minutes in seconds
  */
 export const cacheGet = async <T>(
   key: string,
-  generator: () => Promise<T>
+  generator: () => Promise<T>,
+  ttl: number = CACHE_TTL
 ): Promise<T> => {
   try {
     const client = await getRedisClient();
@@ -34,7 +38,7 @@ export const cacheGet = async <T>(
     // Generate new value and cache it
     const value = await generator();
     try {
-      await client.setEx(key, CACHE_TTL, JSON.stringify(value));
+      await client.setEx(key, ttl, JSON.stringify(value));
     } catch (error) {
       console.warn(`Failed to cache value for key ${key}:`, error);
     }
