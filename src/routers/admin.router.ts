@@ -29,6 +29,17 @@ adminRouter.post("/song", async (req, res) => {
   }
 });
 
+// The song list as stored, without the caches, so the admin list is right after an edit or a delete
+adminRouter.get("/song", async (req, res) => {
+  try {
+    await adminJwtAuth(req);
+    res.status(200).send(await SongModel.find({}).select("-melody"));
+  } catch (error) {
+    console.log(error);
+    res.status(403).send({ error: (error as Error).message || "Admins only" });
+  }
+});
+
 // A song as stored, with its notes, never from the caches: the admin editors read it before changing it
 adminRouter.get("/song/:id", async (req, res) => {
   try {
