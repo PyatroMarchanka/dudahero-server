@@ -1,7 +1,7 @@
 import { ISong } from "../../interfaces/song";
 import setupMongooseConnection from "../connect";
 import { SongModel } from "../schemas/song";
-import { cacheGet, cacheInvalidate } from "../../utils/cache";
+import { cacheGet, cacheInvalidate, LONG_CACHE_TTL } from "../../utils/cache";
 
 const getAllSongs = async () => {
   await setupMongooseConnection();
@@ -10,7 +10,7 @@ const getAllSongs = async () => {
   // stays): they are loaded one song at a time (getSongById), so the list stays small
   return cacheGet("songs:all", async () => {
     return await SongModel.find({}).select({ "melody.roll": 0, "melody.abc": 0 });
-  });
+  }, LONG_CACHE_TTL);
 };
 
 const getSongById = async (id: string) => {
@@ -18,7 +18,7 @@ const getSongById = async (id: string) => {
 
   return cacheGet(`songs:${id}`, async () => {
     return await SongModel.findById(id);
-  });
+  }, LONG_CACHE_TTL);
 };
 
 const getSongShortNames = async () => {
@@ -26,7 +26,7 @@ const getSongShortNames = async () => {
 
   return cacheGet("songs:shortnames", async () => {
     return await SongModel.find({}).select("_id name");
-  });
+  }, LONG_CACHE_TTL);
 };
 
 const getTopByPlays = async (limit: number = 10) => {
