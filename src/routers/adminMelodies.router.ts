@@ -154,7 +154,7 @@ adminMelodiesRouter.get("/:id", async (req, res) => {
   }
 });
 
-// Admin edits the notes or title of any melody
+// Admin edits the notes or title of any melody. Its review status doesn't change.
 adminMelodiesRouter.put("/:id", async (req, res) => {
   if (!(await requireAdmin(req, res))) return;
 
@@ -167,6 +167,14 @@ adminMelodiesRouter.put("/:id", async (req, res) => {
     const melody = await userMelodiesApi.adminUpdateMelody(getAuthUserId(req), req.params.id, content);
     if (!melody) {
       return res.status(404).send({ error: "Melody not found" });
+    }
+    // An admin's edit of an approved melody goes straight to its catalog song
+    if (melody.reviewStatus === "approved" && melody.catalogSongId && mongoose.Types.ObjectId.isValid(melody.catalogSongId)) {
+      const copy = melodyCopy(melody);
+      if (copy) {
+        await SongModel.findByIdAndUpdate(melody.catalogSongId, { $set: { melody: copy, updatedAt: new Date() } });
+        await invalidateSongCaches(melody.catalogSongId);
+      }
     }
     res.status(200).send(melody);
   } catch (error) {
