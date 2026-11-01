@@ -27,6 +27,10 @@ const songSchema: Schema = new Schema<ISong>({
   transcribedBy: { type: String, required: false },
   lyrycs: { type: String, required: false },
   stats: { type: statsSchema, required: false },
+  source: { type: String, enum: ["file", "melody"], required: false },
+  sourceMelodyId: { type: String, required: false },
+  // { format, abc } or { format, roll }, checked by the admin router before saving
+  melody: { type: Schema.Types.Mixed, required: false },
   createdAt: { type: Date, required: true, default: Date.now },
   updatedAt: { type: Date, required: true, default: Date.now },
 });

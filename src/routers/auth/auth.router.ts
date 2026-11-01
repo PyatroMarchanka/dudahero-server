@@ -36,7 +36,11 @@ authRouter.post("/google-auth", async (req, res) => {
       user = await userApi.addUser(newUser);
     }
 
-    const token = jwt.sign({ user: req.user }, ENV.JWT_SECRET || "");
+    // The user's _id goes into the signed token: the admin check reads it from there
+    const token = jwt.sign(
+      { user: { _id: (user as any)._id.toString(), email: user.email } },
+      ENV.JWT_SECRET || ""
+    );
 
     // 20 days
     const time = 1000 * 60 * 60 * 24 * 20;

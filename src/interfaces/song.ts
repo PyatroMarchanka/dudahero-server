@@ -21,6 +21,16 @@ export type TimeSignatures =
   | "10/8"
   | "11/8";
 
+import { IMelodyRoll } from "./userMelody";
+
+// The notes of a catalog song that came from a user's melody, copied when an
+// admin approved it. The frontend builds the MIDI from them in the browser.
+export interface ISongMelody {
+  format: "abc" | "roll";
+  abc?: string;
+  roll?: IMelodyRoll;
+}
+
 export interface ISong {
   name: string;
   type: string;
@@ -34,6 +44,11 @@ export interface ISong {
   originalTempo: number;
   links: SongLink[];
   lyrycs?: string;
+  // "file": a .mid file in the frontend's public/midi (every song without a source).
+  // "melody": a user's melody approved into the catalog, played from `melody`.
+  source?: "file" | "melody";
+  sourceMelodyId?: string;
+  melody?: ISongMelody;
   stats: IStats;
   createdAt: Date;
   updatedAt: Date;

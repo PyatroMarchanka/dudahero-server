@@ -17,6 +17,11 @@ export interface IMelodyRoll {
 
 export type MelodyFormat = "abc" | "roll";
 
+// draft: only the owner works on it. pending: sent for review. approved: an
+// admin added it to the song catalog. rejected: an admin sent it back.
+export type ReviewStatus = "draft" | "pending" | "approved" | "rejected";
+export const REVIEW_STATUSES: ReviewStatus[] = ["draft", "pending", "approved", "rejected"];
+
 export interface IUserMelody {
   // _id of the user who submitted the melody
   ownerId: string;
@@ -27,6 +32,19 @@ export interface IUserMelody {
   abc?: string;
   // Source of truth for "roll" melodies: the frontend builds the MIDI from the notes
   roll?: IMelodyRoll;
+  // Records saved before reviews existed have no status: they are "draft"
+  reviewStatus?: ReviewStatus;
+  // Last time the owner sent it for review
+  submittedAt?: Date;
+  // _id of the admin who approved or rejected it, and when
+  reviewedBy?: string;
+  reviewedAt?: Date;
+  // Optional note from the admin to the owner
+  reviewComment?: string;
+  // _id of whoever saved it last (the owner, or an admin editing it)
+  lastEditedBy?: string;
+  // _id of the catalog song made from it on approval
+  catalogSongId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
