@@ -4,6 +4,15 @@ import mongoose from "mongoose";
 import { adminJwtAuth } from "../middleware/jwtAuth";
 import { cacheInvalidate } from "../utils/cache";
 import { appUpdatesApi } from "../mongo/api/appUpdates";
+import { UserMelodyModel } from "../mongo/schemas/userMelody";
+import { validateSongMelody } from "../utils/melodyValidation";
+
+// The song list and the top lists are cached; clear them after a change
+const invalidateSongLists = async () => {
+  await cacheInvalidate("songs:all");
+  await cacheInvalidate("songs:top:*");
+  await cacheInvalidate("songs:shortnames");
+};
 
 export const adminRouter = express.Router();
 
@@ -54,17 +63,29 @@ adminRouter.put("/song/:id", async (req, res) => {
         error: `Invalid updates!, valid are: ` + allowedUpdates.join(", "),
       });
     }
-    console.log('req.body', req.body);
+    const changes = { ...req.body };
+    if (changes.melody !== undefined) {
+      // Notes edited in the notes editor: a song with notes in the database is played from them, not from a file
+      const melody = validateSongMelody(changes.melody);
+      if (typeof melody === "string") {
+        return res.status(400).send({ error: melody });
+      }
+      changes.melody = melody;
+      changes.source = "melody";
+    }
+    // The frontend keeps a song's notes under a URL with this date, so every edit moves it
+    changes.updatedAt = new Date();
     const song = await SongModel.findOneAndUpdate(
       { _id: new mongoose.Types.ObjectId(req.params.id) },
-      { $set: req.body },
+      { $set: changes },
       { new: true, runValidators: true },
     );
 
     if (!song) {
       return res.status(404).send({ error: `Song not found: id =  ${req.params.id}` });
     }
-    cacheInvalidate(`songs:${req.params.id}`);
+    await cacheInvalidate(`songs:${req.params.id}`);
+    await invalidateSongLists();
     res.status(200).send(song);
   } catch (error) {
     console.log(error);
@@ -80,7 +101,24 @@ adminRouter.delete("/song/:id", async (req, res) => {
     if (!song) {
       return res.status(404).send({ error: `Song not found: id =  ${req.params.id}` });
     }
-    cacheInvalidate(`songs:${req.params.id}`);
+    await cacheInvalidate(`songs:${req.params.id}`);
+    await invalidateSongLists();
+
+    // A song made from a user's melody: give the melody back to its owner, so it doesn't claim to be in the list
+    const melodyId = String(song.sourceMelodyId ?? "");
+    if (melodyId && mongoose.Types.ObjectId.isValid(melodyId)) {
+      await UserMelodyModel.updateOne(
+        { _id: new mongoose.Types.ObjectId(melodyId), catalogSongId: String(song._id) },
+        {
+          $set: {
+            reviewStatus: "rejected",
+            reviewComment: "Removed from the song list",
+            reviewedAt: new Date(),
+          },
+          $unset: { catalogSongId: 1 },
+        }
+      );
+    }
     res.status(200).send(song);
   } catch (error) {
     console.log(error);
