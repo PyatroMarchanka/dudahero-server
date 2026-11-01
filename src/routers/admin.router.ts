@@ -29,6 +29,21 @@ adminRouter.post("/song", async (req, res) => {
   }
 });
 
+// A song as stored, with its notes, never from the caches: the admin editors read it before changing it
+adminRouter.get("/song/:id", async (req, res) => {
+  try {
+    await adminJwtAuth(req);
+    const song = mongoose.Types.ObjectId.isValid(req.params.id) ? await SongModel.findById(req.params.id) : null;
+    if (!song) {
+      return res.status(404).send({ error: `Song not found: id =  ${req.params.id}` });
+    }
+    res.status(200).send(song);
+  } catch (error) {
+    console.log(error);
+    res.status(403).send({ error: (error as Error).message || "Admins only" });
+  }
+});
+
 // Update a song by ID
 adminRouter.put("/song/:id", async (req, res) => {
   try {
