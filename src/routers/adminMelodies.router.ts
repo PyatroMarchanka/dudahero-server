@@ -31,6 +31,18 @@ const readComment = (body: any): string | undefined | false => {
   return body.comment.trim() || undefined;
 };
 
+// Why a database step failed, in words an admin can act on (these routes are admin only)
+const reasonOf = (error: any): string => {
+  if (error?.code === 11000) {
+    const field = Object.keys(error.keyValue || error.keyPattern || {})[0];
+    return `A catalog song with the same ${field || "id"} already exists`;
+  }
+  if (error?.name === "ValidationError" || error?.name === "CastError") {
+    return error.message;
+  }
+  return error?.message ? `Server error: ${error.message}` : "Server error";
+};
+
 const isShortString = (value: unknown, max = 200): value is string =>
   typeof value === "string" && value.trim().length > 0 && value.length <= max;
 
@@ -179,7 +191,7 @@ adminMelodiesRouter.put("/:id", async (req, res) => {
     res.status(200).send(melody);
   } catch (error) {
     logger.info("Error updating melody as admin:", error);
-    res.status(400).send({ error: "Could not update melody" });
+    res.status(500).send({ error: `Could not update melody. ${reasonOf(error)}` });
   }
 });
 
@@ -247,7 +259,7 @@ adminMelodiesRouter.post("/:id/approve", async (req, res) => {
     res.status(200).send({ melody: reviewed, song });
   } catch (error) {
     logger.info("Error approving melody:", error);
-    res.status(400).send({ error: "Could not approve melody" });
+    res.status(500).send({ error: `Could not approve melody. ${reasonOf(error)}` });
   }
 });
 
@@ -285,6 +297,6 @@ adminMelodiesRouter.post("/:id/reject", async (req, res) => {
     res.status(200).send({ melody: reviewed });
   } catch (error) {
     logger.info("Error rejecting melody:", error);
-    res.status(400).send({ error: "Could not reject melody" });
+    res.status(500).send({ error: `Could not reject melody. ${reasonOf(error)}` });
   }
 });

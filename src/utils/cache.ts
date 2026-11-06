@@ -1,5 +1,23 @@
 import { getRedisClient } from '../mongo/redis';
 
+// A cache call that takes longer than this is given up, so Redis can never hold a request
+const REDIS_TIMEOUT_MS = 2000;
+
+const withTimeout = <T>(promise: Promise<T>, what: string): Promise<T> =>
+  new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`Redis ${what} timed out`)), REDIS_TIMEOUT_MS);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
+
 const CACHE_TTL = 600; // 10 minutes in seconds
 
 // For keys that every write path clears explicitly: the time is only a safety net
@@ -25,20 +43,20 @@ export const cacheGet = async <T>(
     }
 
     // Try to get from cache
-    const cached = await client.get(key);
+    const cached = await withTimeout(client.get(key), `get ${key}`);
     if (cached) {
       try {
         return JSON.parse(cached) as T;
       } catch (error) {
         console.warn(`Failed to parse cached value for key ${key}:`, error);
-        await client.del(key);
+        await withTimeout(client.del(key), `del ${key}`).catch(() => undefined);
       }
     }
 
     // Generate new value and cache it
     const value = await generator();
     try {
-      await client.setEx(key, ttl, JSON.stringify(value));
+      await withTimeout(client.setEx(key, ttl, JSON.stringify(value)), `set ${key}`);
     } catch (error) {
       console.warn(`Failed to cache value for key ${key}:`, error);
     }
@@ -62,9 +80,9 @@ export const cacheInvalidate = async (pattern: string): Promise<void> => {
       return;
     }
 
-    const keys = await client.keys(pattern);
+    const keys = await withTimeout(client.keys(pattern), `keys ${pattern}`);
     if (keys.length > 0) {
-      await client.del(keys);
+      await withTimeout(client.del(keys), `del ${pattern}`);
     }
   } catch (error) {
     console.warn(`Failed to invalidate cache pattern ${pattern}:`, error);
@@ -82,7 +100,7 @@ export const cacheClear = async (): Promise<void> => {
       return;
     }
 
-    await client.flushDb();
+    await withTimeout(client.flushDb(), 'flush');
   } catch (error) {
     console.warn('Failed to clear cache:', error);
   }
