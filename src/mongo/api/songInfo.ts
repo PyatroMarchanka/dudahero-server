@@ -33,14 +33,21 @@ const seedSongInfo = async () => {
       }
       const links = song.links || [];
       const newLinks = (entry.links || []).filter((link) => !links.some((existing) => existing.url === link.url));
-      if (!Object.keys(set).length && !newLinks.length) {
+      const labels = song.labels || [];
+      const newLabels = (entry.labels || []).filter((label) => !labels.includes(label));
+      if (!Object.keys(set).length && !newLinks.length && !newLabels.length) {
         continue;
       }
       await SongModel.updateOne(
         { _id: (song as ISong & { _id: unknown })._id },
         {
           ...(Object.keys(set).length && { $set: set }),
-          ...(newLinks.length && { $push: { links: { $each: newLinks } } }),
+          ...((newLinks.length || newLabels.length) && {
+          $push: {
+            ...(newLinks.length && { links: { $each: newLinks } }),
+            ...(newLabels.length && { labels: { $each: newLabels } }),
+          },
+        }),
         }
       );
       changed++;
