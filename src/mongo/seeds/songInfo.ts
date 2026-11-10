@@ -10,6 +10,8 @@
 export interface SongInfoSeed {
   name: string;
   pathNames: string[];
+  // Also match a catalog song whose name contains this text (for songs without a MIDI file)
+  nameIncludes?: string;
   about?: string;
   lyrycs?: string;
   // Same shape as the links an admin adds: type "Other" is shown as a plain link
@@ -1231,6 +1233,25 @@ export const songInfoSeed: SongInfoSeed[] = [
         "type": "Other",
         "name": "ЭТНАЎСЁ: «Любанская 10+. Частка 2» (2017)",
         "url": "https://ethnoby.org/audyioteka/684078585"
+      }
+    ]
+  },
+  {
+    "name": "Чаго ты, лося",
+    "pathNames": [],
+    "nameIncludes": "лося",
+    "about": "Восеньская лірычная песня. Запісана ў 1986 г. у в. Мелехава Сенненскага раёна Віцебскай вобласці ад Ульяны Дзінаідавай (1901 г. н.); запісалі З. Мажэйка, Т. Канстанцінава і Т. Варфаламеева. Тэкст паводле гэтага запісу (крыніца: ЭТНАЎСЁ, ethnoby.org).",
+    "lyrycs": "— Чаго ты, лося, чаго ты, дзікі\nТак к зямле прылігаіш? – 2 р.\nА ці ты, лося, а ці ты, дзікі\nСцідзёну зіму чуіш? – 2 р.\n\n— Чую ня чую, віджу не віджу,\nНе лецейка будзіць\nНе цёплае будзіць.\nЛісточак рыіць, зямельку крыіць,\nСцідзёна зіма будзіць. – 2 р.\n\nЦі ты Манечка, ці ты молада,\nЛіхую свякроў чуіш? – 2 р.\nЧую ня чую, віджу не віджу,\nНі маманька будзіць,\nНе родная будзіць.",
+    "links": [
+      {
+        "type": "Other",
+        "name": "ЭТНАЎСЁ: запіс з в. Мелехава, Сенненскі раён",
+        "url": "https://ethnoby.org/falklor/2445100821"
+      },
+      {
+        "type": "Other",
+        "name": "ЭТНАЎСЁ: у выкананні гурта Volya",
+        "url": "https://ethnoby.org/falklor/2935223728"
       }
     ]
   }

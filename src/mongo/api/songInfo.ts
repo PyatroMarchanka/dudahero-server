@@ -5,6 +5,8 @@ import { songInfoSeed } from "../seeds/songInfo";
 import { cacheInvalidate } from "../../utils/cache";
 import { logger } from "../../utils/logger";
 
+const escapeRegex = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 // Placeholders such as "yy" count as no text
 const isBlank = (value?: string | null) => !value || value.trim().length < 3;
 
@@ -16,7 +18,11 @@ const seedSongInfo = async () => {
 
   let changed = 0;
   for (const entry of songInfoSeed) {
-    const songs = await SongModel.find({ pathName: { $in: entry.pathNames } }).lean<ISong[]>();
+    // Songs approved from user melodies have no MIDI file, so they are matched by a part of their name
+    const byName = entry.nameIncludes
+      ? [{ type: "belarusian", name: { $regex: escapeRegex(entry.nameIncludes), $options: "i" } }]
+      : [];
+    const songs = await SongModel.find({ $or: [{ pathName: { $in: entry.pathNames } }, ...byName] }).lean<ISong[]>();
     for (const song of songs) {
       const set: Record<string, unknown> = {};
       if (entry.about && isBlank(song.about)) {
