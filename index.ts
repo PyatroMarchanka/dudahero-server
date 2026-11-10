@@ -21,6 +21,7 @@ import { updatesRouter } from "./src/routers/updates.router";
 import { melodiesRouter } from "./src/routers/melodies.router";
 import { adminMelodiesRouter } from "./src/routers/adminMelodies.router";
 import { appUpdatesApi } from "./src/mongo/api/appUpdates";
+import { songInfoApi } from "./src/mongo/api/songInfo";
 import { logRoutes } from "./src/utils/logRoutes";
 import { initRedisClient } from "./src/mongo/redis";
 import mongoose from "mongoose";
@@ -32,6 +33,10 @@ initRedisClient().catch((error) => {
 
 appUpdatesApi.seedUpdates().catch((error) => {
   logger.warn("Seeding app updates failed:", error);
+});
+
+songInfoApi.seedSongInfo().catch((error) => {
+  logger.warn("Seeding song info failed:", error);
 });
 
 const app = express();
