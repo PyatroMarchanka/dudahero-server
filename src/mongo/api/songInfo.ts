@@ -43,11 +43,11 @@ const seedSongInfo = async () => {
         {
           ...(Object.keys(set).length && { $set: set }),
           ...((newLinks.length || newLabels.length) && {
-          $push: {
-            ...(newLinks.length && { links: { $each: newLinks } }),
-            ...(newLabels.length && { labels: { $each: newLabels } }),
-          },
-        }),
+            $push: {
+              ...(newLinks.length && { links: { $each: newLinks } }),
+              ...(newLabels.length && { labels: { $each: newLabels } }),
+            },
+          }),
         }
       );
       changed++;
