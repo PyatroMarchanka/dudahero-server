@@ -16,6 +16,7 @@ const userMelodySchema = new Schema<IUserMelody>(
     reviewComment: { type: String },
     lastEditedBy: { type: String },
     catalogSongId: { type: String },
+    catalogVersionId: { type: String },
   },
   { timestamps: true }
 );

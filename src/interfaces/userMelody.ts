@@ -45,6 +45,8 @@ export interface IUserMelody {
   lastEditedBy?: string;
   // _id of the catalog song made from it on approval
   catalogSongId?: string;
+  // _id of the version inside that song, when it was approved as a version of an existing song
+  catalogVersionId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

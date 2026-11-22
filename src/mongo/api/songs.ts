@@ -1,6 +1,6 @@
 import { ISong } from "../../interfaces/song";
 import setupMongooseConnection from "../connect";
-import { SongModel } from "../schemas/song";
+import { SONG_LIST_PROJECTION, SongModel } from "../schemas/song";
 import { cacheGet, cacheInvalidate, LONG_CACHE_TTL } from "../../utils/cache";
 
 const getAllSongs = async () => {
@@ -9,7 +9,7 @@ const getAllSongs = async () => {
   // The notes of songs stored in the database are left out (only their format
   // stays): they are loaded one song at a time (getSongById), so the list stays small
   return cacheGet("songs:all", async () => {
-    return await SongModel.find({}).select({ "melody.roll": 0, "melody.abc": 0 });
+    return await SongModel.find({}).select(SONG_LIST_PROJECTION);
   }, LONG_CACHE_TTL);
 };
 
@@ -34,6 +34,7 @@ const getTopByPlays = async (limit: number = 10) => {
 
   return cacheGet(`songs:top:plays`, async () => {
     return await SongModel.find({})
+      .select(SONG_LIST_PROJECTION)
       .sort({ "stats.views": -1 })
       .limit(limit);
   });
@@ -44,6 +45,7 @@ const getTopRecent = async (limit: number = 10) => {
 
   return cacheGet(`songs:top:recent`, async () => {
     return await SongModel.find({})
+      .select(SONG_LIST_PROJECTION)
       .sort({ createdAt: -1 })
       .limit(limit);
   });

@@ -45,6 +45,7 @@ const toAdminMelody = (melody: any, users: Map<string, any>) => {
     lastEditedBy: melody.lastEditedBy,
     lastEditedByName: editor?.name,
     catalogSongId: melody.catalogSongId,
+    catalogVersionId: melody.catalogVersionId,
   };
 };
 
@@ -227,7 +228,11 @@ const adminUpdateMelody = async (adminId: string, id: string, content: MelodyCon
 
 const setReview = async (
   id: string,
-  review: { status: "approved" | "rejected"; adminId: string; comment?: string; catalogSongId?: string | null }
+  review: { status: "approved" | "rejected"; adminId: string; comment?: string;
+    catalogSongId?: string | null;
+    // Only read when catalogSongId is set: a version id, or absent for the song itself
+    catalogVersionId?: string;
+  }
 ) => {
   await setupMongooseConnection();
   const $set: Record<string, unknown> = {
@@ -243,8 +248,14 @@ const setReview = async (
   }
   if (review.catalogSongId) {
     $set.catalogSongId = review.catalogSongId;
+    if (review.catalogVersionId) {
+      $set.catalogVersionId = review.catalogVersionId;
+    } else {
+      $unset.catalogVersionId = 1;
+    }
   } else if (review.catalogSongId === null) {
     $unset.catalogSongId = 1;
+    $unset.catalogVersionId = 1;
   }
   const melody = await UserMelodyModel.findByIdAndUpdate(id, { $set, $unset }, { new: true });
   return melody ? toAdminMelody(melody, await loadUsers(usersOf(melody))) : null;
