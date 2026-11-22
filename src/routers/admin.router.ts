@@ -1,11 +1,13 @@
 import express from "express";
-import { SongModel } from "../mongo/schemas/song";
+import { SONG_LIST_PROJECTION, SongModel } from "../mongo/schemas/song";
 import mongoose from "mongoose";
 import { adminJwtAuth } from "../middleware/jwtAuth";
 import { cacheInvalidate } from "../utils/cache";
 import { appUpdatesApi } from "../mongo/api/appUpdates";
 import { UserMelodyModel } from "../mongo/schemas/userMelody";
 import { validateSongMelody } from "../utils/melodyValidation";
+import { validateVersion, validateVersionInfo } from "../utils/versionValidation";
+import { VERSION_MUSIC_FIELDS } from "../interfaces/song";
 
 // The song list and the top lists are cached; clear them after a change
 const invalidateSongLists = async () => {
@@ -15,6 +17,221 @@ const invalidateSongLists = async () => {
 };
 
 export const adminRouter = express.Router();
+
+// Users' melodies approved into a song (or into one of its versions) go back to
+// their owners when it is removed from the catalog
+const releaseMelodies = async (songId: string, versionId?: string) => {
+  await UserMelodyModel.updateMany(
+    versionId ? { catalogSongId: songId, catalogVersionId: versionId } : { catalogSongId: songId },
+    {
+      $set: {
+        reviewStatus: "rejected",
+        reviewComment: "Removed from the song list",
+        reviewedAt: new Date(),
+      },
+      $unset: { catalogSongId: 1, catalogVersionId: 1 },
+    }
+  );
+};
+
+const findSong = (id: string) => (mongoose.Types.ObjectId.isValid(id) ? SongModel.findById(id) : null);
+
+const afterSongChange = async (songId: string) => {
+  await cacheInvalidate(`songs:${songId}`);
+  await invalidateSongLists();
+};
+
+// Add a version to a song
+adminRouter.post("/song/:id/versions", async (req, res) => {
+  try {
+    await adminJwtAuth(req);
+  } catch (error) {
+    return res.status(403).send({ error: (error as Error).message || "Admins only" });
+  }
+  const version = validateVersion(req.body);
+  if (typeof version === "string") {
+    return res.status(400).send({ error: version });
+  }
+  try {
+    const song = await findSong(req.params.id);
+    if (!song) {
+      return res.status(404).send({ error: `Song not found: id =  ${req.params.id}` });
+    }
+    const versionId = new mongoose.Types.ObjectId();
+    const now = new Date();
+    const updated = await SongModel.findByIdAndUpdate(
+      song._id,
+      {
+        $push: {
+          versions: {
+            ...version,
+            _id: versionId,
+            pathName: version.pathName || `melody/${song._id}/${versionId}`,
+            createdAt: now,
+            updatedAt: now,
+          },
+        },
+        $set: { updatedAt: now },
+      },
+      { new: true, runValidators: true }
+    );
+    await afterSongChange(String(song._id));
+    res.status(201).send(updated);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send({ error: (error as Error).message || "Could not add the version" });
+  }
+});
+
+// Edit a version
+adminRouter.put("/song/:id/versions/:versionId", async (req, res) => {
+  try {
+    await adminJwtAuth(req);
+  } catch (error) {
+    return res.status(403).send({ error: (error as Error).message || "Admins only" });
+  }
+  const version = validateVersion(req.body);
+  if (typeof version === "string") {
+    return res.status(400).send({ error: version });
+  }
+  try {
+    const song: any = await findSong(req.params.id);
+    const existing = song?.versions?.find((item: any) => String(item._id) === req.params.versionId);
+    if (!song || !existing) {
+      return res.status(404).send({ error: "Version not found" });
+    }
+    const now = new Date();
+    const updated = await SongModel.findOneAndUpdate(
+      { _id: song._id, "versions._id": existing._id },
+      {
+        $set: {
+          "versions.$": {
+            ...version,
+            _id: existing._id,
+            pathName: version.pathName || `melody/${song._id}/${existing._id}`,
+            // An edit keeps where the version came from unless the request says otherwise
+            sourceMelodyId: version.sourceMelodyId ?? existing.sourceMelodyId,
+            createdAt: existing.createdAt || now,
+            // The frontend keeps notes under a URL with this date, so every edit moves it
+            updatedAt: now,
+          },
+          updatedAt: now,
+        },
+      },
+      { new: true, runValidators: true }
+    );
+    await afterSongChange(String(song._id));
+    res.status(200).send(updated);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send({ error: (error as Error).message || "Could not save the version" });
+  }
+});
+
+// Delete a version
+adminRouter.delete("/song/:id/versions/:versionId", async (req, res) => {
+  try {
+    await adminJwtAuth(req);
+  } catch (error) {
+    return res.status(403).send({ error: (error as Error).message || "Admins only" });
+  }
+  try {
+    const song: any = await findSong(req.params.id);
+    const existing = song?.versions?.find((item: any) => String(item._id) === req.params.versionId);
+    if (!song || !existing) {
+      return res.status(404).send({ error: "Version not found" });
+    }
+    const updated = await SongModel.findByIdAndUpdate(
+      song._id,
+      { $pull: { versions: { _id: existing._id } }, $set: { updatedAt: new Date() } },
+      { new: true }
+    );
+    await afterSongChange(String(song._id));
+    await releaseMelodies(String(song._id), String(existing._id));
+    res.status(200).send(updated);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ error: (error as Error).message || "Could not delete the version" });
+  }
+});
+
+// Make a version the default one (shown first): its notes move to the song,
+// and the song's old notes take the version's place. The version keeps its id.
+adminRouter.post("/song/:id/versions/:versionId/make-default", async (req, res) => {
+  try {
+    await adminJwtAuth(req);
+  } catch (error) {
+    return res.status(403).send({ error: (error as Error).message || "Admins only" });
+  }
+  try {
+    const song: any = await findSong(req.params.id);
+    const index = (song?.versions || []).findIndex((item: any) => String(item._id) === req.params.versionId);
+    if (!song || index < 0) {
+      return res.status(404).send({ error: "Version not found" });
+    }
+    const raw = song.toObject();
+    const version = raw.versions[index];
+    const songId = String(song._id);
+    const versionId = String(version._id);
+    const now = new Date();
+
+    const $set: Record<string, unknown> = { updatedAt: now };
+    const $unset: Record<string, 1> = {};
+    const setOrUnset = (field: string, value: unknown) => {
+      if (value === undefined || value === null || value === "") $unset[field] = 1;
+      else $set[field] = value;
+    };
+
+    const oldDefault: Record<string, unknown> = {
+      _id: version._id,
+      label: raw.versionLabel || "Basic",
+      author: raw.versionAuthor,
+      level: raw.versionLevel,
+      links: version.links || [],
+      createdAt: raw.createdAt || now,
+      updatedAt: now,
+    };
+    for (const field of VERSION_MUSIC_FIELDS) {
+      oldDefault[field] = raw[field];
+      setOrUnset(field, version[field]);
+    }
+    // A song made from a melody has a placeholder path; keep the paths unique
+    if (raw.source === "melody") oldDefault.pathName = `melody/${songId}/${versionId}`;
+    if (version.source === "melody") $set.pathName = `melody/${version.sourceMelodyId || songId}`;
+    setOrUnset("versionLabel", version.label);
+    setOrUnset("versionAuthor", version.author);
+    setOrUnset("versionLevel", version.level);
+    for (const key of Object.keys(oldDefault)) {
+      if (oldDefault[key] === undefined || oldDefault[key] === null) delete oldDefault[key];
+    }
+    $set[`versions.${index}`] = oldDefault;
+
+    const updated = await SongModel.findByIdAndUpdate(
+      song._id,
+      Object.keys($unset).length ? { $set, $unset } : { $set },
+      { new: true, runValidators: true }
+    );
+
+    // Keep the links from users' melodies to where their notes now are
+    if (version.sourceMelodyId && mongoose.Types.ObjectId.isValid(version.sourceMelodyId)) {
+      await UserMelodyModel.updateOne(
+        { _id: new mongoose.Types.ObjectId(version.sourceMelodyId), catalogSongId: songId },
+        { $unset: { catalogVersionId: 1 } }
+      );
+    }
+    if (raw.sourceMelodyId && mongoose.Types.ObjectId.isValid(raw.sourceMelodyId)) {
+      await UserMelodyModel.updateOne(
+        { _id: new mongoose.Types.ObjectId(raw.sourceMelodyId), catalogSongId: songId },
+        { $set: { catalogVersionId: versionId } }
+      );
+    }
+    await afterSongChange(songId);
+    res.status(200).send(updated);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ error: (error as Error).message || "Could not change the default version" });
+  }
+});
 
 // Create a new song
 adminRouter.post("/song", async (req, res) => {
@@ -33,7 +250,7 @@ adminRouter.post("/song", async (req, res) => {
 adminRouter.get("/song", async (req, res) => {
   try {
     await adminJwtAuth(req);
-    res.status(200).send(await SongModel.find({}).select({ "melody.roll": 0, "melody.abc": 0 }));
+    res.status(200).send(await SongModel.find({}).select(SONG_LIST_PROJECTION));
   } catch (error) {
     console.log(error);
     res.status(403).send({ error: (error as Error).message || "Admins only" });
@@ -77,6 +294,11 @@ adminRouter.put("/song/:id", async (req, res) => {
       "source",
       "sourceMelodyId",
       "melody",
+      "versionLabel",
+      "versionAuthor",
+      "versionLevel",
+      // Sent back by the editor with the rest of the song, but versions change only through their own routes
+      "versions",
       "createdAt",
       "updatedAt",
       "__v",
@@ -90,6 +312,28 @@ adminRouter.put("/song/:id", async (req, res) => {
       });
     }
     const changes = { ...req.body };
+    delete changes.versions;
+    const $unset: Record<string, 1> = {};
+    if (["versionLabel", "versionAuthor", "versionLevel"].some((field) => field in changes)) {
+      const info = validateVersionInfo(
+        { label: changes.versionLabel, author: changes.versionAuthor, level: changes.versionLevel },
+        false
+      );
+      if (typeof info === "string") {
+        return res.status(400).send({ error: info });
+      }
+      const fields: [string, string | undefined][] = [
+        ["versionLabel", info.label],
+        ["versionAuthor", info.author],
+        ["versionLevel", info.level],
+      ];
+      for (const [field, value] of fields) {
+        if (!(field in changes)) continue;
+        delete changes[field];
+        if (value) changes[field] = value;
+        else $unset[field] = 1;
+      }
+    }
     if (changes.melody !== undefined) {
       // Notes edited in the notes editor: a song with notes in the database is played from them, not from a file
       const melody = validateSongMelody(changes.melody);
@@ -103,7 +347,7 @@ adminRouter.put("/song/:id", async (req, res) => {
     changes.updatedAt = new Date();
     const song = await SongModel.findOneAndUpdate(
       { _id: new mongoose.Types.ObjectId(req.params.id) },
-      { $set: changes },
+      Object.keys($unset).length ? { $set: changes, $unset } : { $set: changes },
       { new: true, runValidators: true },
     );
 
@@ -130,21 +374,9 @@ adminRouter.delete("/song/:id", async (req, res) => {
     await cacheInvalidate(`songs:${req.params.id}`);
     await invalidateSongLists();
 
-    // A song made from a user's melody: give the melody back to its owner, so it doesn't claim to be in the list
-    const melodyId = String(song.sourceMelodyId ?? "");
-    if (melodyId && mongoose.Types.ObjectId.isValid(melodyId)) {
-      await UserMelodyModel.updateOne(
-        { _id: new mongoose.Types.ObjectId(melodyId), catalogSongId: String(song._id) },
-        {
-          $set: {
-            reviewStatus: "rejected",
-            reviewComment: "Removed from the song list",
-            reviewedAt: new Date(),
-          },
-          $unset: { catalogSongId: 1 },
-        }
-      );
-    }
+    // Made from users' melodies (the song or its versions): give them back to their owners,
+    // so they don't claim to be in the list
+    await releaseMelodies(String(song._id));
     res.status(200).send(song);
   } catch (error) {
     console.log(error);

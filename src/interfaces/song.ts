@@ -31,6 +31,42 @@ export interface ISongMelody {
   roll?: IMelodyRoll;
 }
 
+export type VersionLevel = "basic" | "intermediate" | "advanced";
+export const VERSION_LEVELS: VersionLevel[] = ["basic", "intermediate", "advanced"];
+
+// Another version of a song: its own notes, by its own author. The song's
+// name, about, lyrics, type, labels and stats are shared by all versions.
+export interface ISongVersion {
+  _id?: any;
+  // e.g. "With ornaments", "As played by ..."
+  label: string;
+  // The bagpiper or arranger, free text
+  author?: string;
+  level?: VersionLevel;
+  // The notes, the same fields as on a song
+  pathName: string;
+  source?: "file" | "melody";
+  sourceMelodyId?: string;
+  melody?: ISongMelody;
+  timeSignature: TimeSignatures;
+  originalTempo: number;
+  transcribedBy?: string;
+  links?: SongLink[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+// The fields a version has of its own; "make default" swaps them with the song's
+export const VERSION_MUSIC_FIELDS = [
+  "pathName",
+  "source",
+  "sourceMelodyId",
+  "melody",
+  "timeSignature",
+  "originalTempo",
+  "transcribedBy",
+] as const;
+
 export interface ISong {
   name: string;
   type: string;
@@ -49,6 +85,13 @@ export interface ISong {
   source?: "file" | "melody";
   sourceMelodyId?: string;
   melody?: ISongMelody;
+  // The song's own notes are its default version (shown first, normally the
+  // basic one). These describe it; absent label = "Basic".
+  versionLabel?: string;
+  versionAuthor?: string;
+  versionLevel?: VersionLevel;
+  // Every other version. Absent = the song has only its default version.
+  versions?: ISongVersion[];
   stats: IStats;
   createdAt: Date;
   updatedAt: Date;
